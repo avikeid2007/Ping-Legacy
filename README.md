@@ -43,8 +43,9 @@
 | Feature | Description |
 |:--------|:------------|
 | 🛤️ **Traceroute** | Hop-by-hop path tracing |
-| � **DNS Lookup** | Hostname resolution & IP records |
-| � **Port Scanner** | Open port detection |
+| 🔍 **DNS Lookup** | Hostname resolution & IP records |
+| 🔌 **Port Scanner** | Open port detection |
+| 🌐 **Network Scanner** | IP range & subnet discovery with legal safeguards |
 | 🚀 **Speed Test** | Download, upload & latency testing |
 
 </td>
@@ -165,7 +166,17 @@ dotnet build PingTool.WinUI3.sln -c Release -p:Platform=x64
 
 ---
 
-## 📄 License
+## � Project Structure
+
+This repository contains:
+- **PingTool.WinUI3** - Modern WinUI 3 application (active development)
+- **Archive-UWP** - Legacy UWP project (archived for reference)
+
+The project has been fully migrated from UWP to WinUI 3 for better performance and modern Windows integration.
+
+---
+
+## �📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 

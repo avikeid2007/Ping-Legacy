@@ -5,133 +5,296 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <!-- Header -->
-        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
-            <Border
-                Width="40"
-                Height="40"
-                Background="{StaticResource AccentGradientBrush}"
-                CornerRadius="8">
-                <FontIcon
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    FontSize="18"
-                    Foreground="White"
-                    Glyph="&#xE939;" />
-            </Border>
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Text="Send Feedback" />
-                <TextBlock
-                    FontSize="12"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="Submit a feature request or report a bug via GitHub" />
-            </StackPanel>
-        </StackPanel>
-
-        <!-- Feedback Type Selection -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <TextBlock
-                FontSize="13"
-                FontWeight="SemiBold"
-                Margin="0,0,0,8"
-                Text="Feedback Type" />
+    <ScrollViewer>
+        <StackPanel Padding="24,16" Spacing="20">
+            <!-- Header -->
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <RadioButton
-                    x:Name="FeatureRadio"
-                    Content="Feature Request"
-                    GroupName="FeedbackType"
-                    IsChecked="True" />
-                <RadioButton
-                    x:Name="BugRadio"
-                    Content="Bug Report"
-                    GroupName="FeedbackType" />
-                <RadioButton
-                    x:Name="QuestionRadio"
-                    Content="Question"
-                    GroupName="FeedbackType" />
+                <Border
+                    Width="44"
+                    Height="44"
+                    Background="{StaticResource AccentGradientBrush}"
+                    CornerRadius="10">
+                    <FontIcon
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        FontSize="20"
+                        Foreground="White"
+                        Glyph="&#xE939;" />
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="24"
+                        FontWeight="Bold"
+                        Text="Send Feedback" />
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="Submit a feature request, report a bug, or ask a question" />
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
 
-        <!-- Title -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,16">
-            <TextBlock
-                FontSize="13"
-                FontWeight="SemiBold"
-                Margin="0,0,0,8"
-                Text="Title" />
-            <TextBox
-                x:Name="TitleText"
-                PlaceholderText="Brief summary of your feedback..." />
-        </StackPanel>
+            <!-- Main Form Card -->
+            <Border Style="{StaticResource ModernCardStyle}">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                            Glyph="&#xE70F;"
+                            FontSize="16"
+                            Foreground="{StaticResource PrimaryAccentBrush}" />
+                        <TextBlock
+                            Text="Feedback Details"
+                            FontWeight="SemiBold"
+                            FontSize="16" />
+                    </StackPanel>
 
-        <!-- Description -->
-        <StackPanel Grid.Row="3">
-            <TextBlock
-                FontSize="13"
-                FontWeight="SemiBold"
-                Margin="0,0,0,8"
-                Text="Description" />
-            <TextBox
-                x:Name="DescriptionText"
-                PlaceholderText="Describe your suggestion or issue in detail..."
-                TextWrapping="Wrap"
-                AcceptsReturn="True"
-                MinHeight="180"
-                VerticalAlignment="Stretch" />
-        </StackPanel>
+                    <!-- Feedback Type Selection -->
+                    <StackPanel>
+                        <TextBlock
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,8"
+                            Text="Feedback Type" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <RadioButton
+                                x:Name="FeatureRadio"
+                                Content="Feature Request"
+                                GroupName="FeedbackType"
+                                IsChecked="True" />
+                            <RadioButton
+                                x:Name="BugRadio"
+                                Content="Bug Report"
+                                GroupName="FeedbackType" />
+                            <RadioButton
+                                x:Name="QuestionRadio"
+                                Content="Question"
+                                GroupName="FeedbackType" />
+                        </StackPanel>
+                    </StackPanel>
 
-        <!-- Actions -->
-        <Grid Grid.Row="4" Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+                    <!-- Title -->
+                    <StackPanel>
+                        <TextBlock
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,8"
+                            Text="Title" />
+                        <TextBox
+                            x:Name="TitleText"
+                            PlaceholderText="Brief summary of your feedback..." />
+                    </StackPanel>
 
-            <CheckBox
-                x:Name="IncludeSystemInfo"
-                Content="Include system information"
-                IsChecked="True" />
+                    <!-- Description -->
+                    <StackPanel>
+                        <TextBlock
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,8"
+                            Text="Description" />
+                        <TextBox
+                            x:Name="DescriptionText"
+                            PlaceholderText="Describe your suggestion or issue in detail..."
+                            TextWrapping="Wrap"
+                            AcceptsReturn="True"
+                            MinHeight="180" />
+                    </StackPanel>
 
-            <Button
-                Grid.Column="1"
-                Margin="8,0"
-                Click="CopyToClipboard_Click"
-                ToolTipService.ToolTip="Copy feedback to clipboard">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <FontIcon
-                        FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        FontSize="14"
-                        Glyph="&#xE8C8;" />
-                    <TextBlock Text="Copy" />
+                    <!-- Include System Info -->
+                    <CheckBox
+                        x:Name="IncludeSystemInfo"
+                        Content="Include system information (OS, app version, etc.)"
+                        IsChecked="True" />
                 </StackPanel>
-            </Button>
+            </Border>
 
-            <Button
-                Grid.Column="2"
-                Style="{StaticResource AccentButtonStyle}"
-                Click="OpenGitHubIssue_Click">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon
-                        FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        FontSize="14"
-                        Glyph="&#xE774;" />
-                    <TextBlock Text="Open GitHub Issue" />
+            <!-- Submission Options Card -->
+            <Border Style="{StaticResource ModernCardStyle}">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                            Glyph="&#xE724;"
+                            FontSize="16"
+                            Foreground="{StaticResource PrimaryAccentBrush}" />
+                        <TextBlock
+                            Text="Submission Options"
+                            FontWeight="SemiBold"
+                            FontSize="16" />
+                    </StackPanel>
+
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Text="Choose how you'd like to submit your feedback. You can use GitHub (requires account), send via email, or export to a file." />
+
+                    <!-- Action Buttons -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- GitHub Option -->
+                        <Border
+                            Padding="12"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="8"
+                            Margin="0,0,8,0">
+                            <StackPanel Spacing="8">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xE71B;"
+                                    FontSize="24"
+                                    Foreground="{StaticResource PrimaryAccentBrush}"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="GitHub Issue"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="Requires GitHub account"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    TextWrapping="Wrap"
+                                    TextAlignment="Center" />
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Click="OpenGitHubIssue_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon
+                                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                            FontSize="12"
+                                            Glyph="&#xE774;" />
+                                        <TextBlock Text="Open Issue" FontSize="12" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Email Option -->
+                        <Border
+                            Grid.Column="1"
+                            Padding="12"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="8"
+                            Margin="0,0,8,0">
+                            <StackPanel Spacing="8">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xE715;"
+                                    FontSize="24"
+                                    Foreground="{StaticResource PrimaryAccentBrush}"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="Send via Email"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="Opens your email client"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    TextWrapping="Wrap"
+                                    TextAlignment="Center" />
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Click="SendEmail_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon
+                                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                            FontSize="12"
+                                            Glyph="&#xE122;" />
+                                        <TextBlock Text="Send Email" FontSize="12" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Export Option -->
+                        <Border
+                            Grid.Column="2"
+                            Padding="12"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="8">
+                            <StackPanel Spacing="8">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xE74E;"
+                                    FontSize="24"
+                                    Foreground="{StaticResource PrimaryAccentBrush}"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="Export to File"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="Save as text file"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    TextWrapping="Wrap"
+                                    TextAlignment="Center" />
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Click="ExportToFile_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon
+                                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                            FontSize="12"
+                                            Glyph="&#xE78C;" />
+                                        <TextBlock Text="Export" FontSize="12" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Quick Action -->
+                    <Border
+                        Padding="12"
+                        Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                        CornerRadius="4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="SemiBold"
+                                    Text="Copy to Clipboard" />
+                                <TextBlock
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="Copy formatted feedback to paste anywhere"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Click="CopyToClipboard_Click"
+                                ToolTipService.ToolTip="Copy feedback to clipboard">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="14"
+                                        Glyph="&#xE8C8;" />
+                                    <TextBlock Text="Copy" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
                 </StackPanel>
-            </Button>
-        </Grid>
-    </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

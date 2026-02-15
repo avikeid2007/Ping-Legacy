@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer Padding="24,16">
-        <StackPanel Spacing="20" MaxWidth="700">
+    <ScrollViewer>
+        <StackPanel Padding="24,16" Spacing="20">
             <!-- Header -->
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="12">
                 <Border
                     Width="44"
                     Height="44"
@@ -67,8 +67,8 @@
                             Checked="ThemeRadio_Checked"
                             Tag="Light"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center">
-                            <StackPanel Spacing="8" HorizontalAlignment="Center">
+                            HorizontalContentAlignment="Left">
+                            <StackPanel Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Top">
                                 <Border
                                     Width="48"
                                     Height="48"
@@ -93,7 +93,7 @@
                             Checked="ThemeRadio_Checked"
                             Tag="Dark"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center">
+                            HorizontalContentAlignment="Left">
                             <StackPanel Spacing="8" HorizontalAlignment="Center">
                                 <Border
                                     Width="48"
@@ -119,7 +119,7 @@
                             Checked="ThemeRadio_Checked"
                             Tag="Default"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center">
+                            HorizontalContentAlignment="Left">
                             <StackPanel Spacing="8" HorizontalAlignment="Center">
                                 <Border
                                     Width="48"
