@@ -3,6 +3,12 @@
 Write-Host "Building MSIX Bundle for Microsoft Store submission..." -ForegroundColor Green
 Write-Host "================================================" -ForegroundColor Green
 
+# Read version from Package.appxmanifest
+$manifestPath = "PingTool.WinUI3\Package.appxmanifest"
+[xml]$manifest = Get-Content $manifestPath
+$version = $manifest.Package.Identity.Version
+Write-Host "Detected version from manifest: $version" -ForegroundColor Cyan
+
 # Set the configuration
 $Configuration = "Release"
 $ProjectPath = "PingTool.WinUI3\PingTool.WinUI3.csproj"
@@ -83,13 +89,13 @@ if ($makeAppxPath -and (Test-Path $makeAppxPath)) {
     }
     
     $bundleContent | Out-File -FilePath $bundleMapPath -Encoding UTF8
-    
-    # Create the bundle
-    $bundleName = "PingTool.WinUI3_2.0.4.0_x86_x64_ARM64.msixbundle"
+
+    # Create the bundle using version from manifest
+    $bundleName = "PingTool.WinUI3_${version}_x86_x64_ARM64.msixbundle"
     $bundlePath = "$packageDir\$bundleName"
-    
-    Write-Host "`nCreating bundle..." -ForegroundColor Cyan
-    & $makeAppxPath bundle /f $bundleMapPath /p $bundlePath /bv 2.0.4.0 /o
+
+    Write-Host "`nCreating bundle with version $version..." -ForegroundColor Cyan
+    & $makeAppxPath bundle /f $bundleMapPath /p $bundlePath /bv $version /o
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n================================================" -ForegroundColor Green
