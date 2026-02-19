@@ -304,7 +304,15 @@
                                         Text="{x:Bind IpAddress}" />
                                     <TextBlock
                                         Width="60"
-                                        Text="{x:Bind ResponseTime}" />
+                                        Text="{x:Bind ResponseTimeDisplay}" />
+                                    <TextBlock
+                                        Width="140"
+                                        FontFamily="Consolas"
+                                        Text="{x:Bind MacAddressDisplay}" />
+                                    <TextBlock
+                                        Width="180"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{x:Bind VendorDisplay}" />
                                     <TextBlock Text="{x:Bind Hostname}" />
                                 </StackPanel>
                             </DataTemplate>

@@ -103,6 +103,9 @@ public partial class MainViewModel : ObservableObject
     private double _packetLoss;
 
     [ObservableProperty]
+    private double _jitter;
+
+    [ObservableProperty]
     private int _successCount;
 
     [ObservableProperty]
@@ -296,12 +299,12 @@ public partial class MainViewModel : ObservableObject
             PingCount = _totalPings,
             AvgLatency = (long)AvgPing,
             PacketLoss = PacketLoss,
-            Summary = $"{_totalPings} pings, Avg: {AvgPing:F0}ms, Loss: {PacketLoss:F1}%",
+            Summary = $"{_totalPings} pings, Avg: {AvgPing:F0}ms, Jitter: {Jitter:F0}ms, Loss: {PacketLoss:F1}%",
             Details = $"Target: {host}\n" +
                      $"IP: {firstPing?.IpAddress}\n" +
                      $"Total Pings: {_totalPings}\n" +
                      $"Success: {SuccessCount}, Failed: {FailCount}\n" +
-                     $"Min: {MinPing}ms, Max: {MaxPing}ms, Avg: {AvgPing:F1}ms\n" +
+                     $"Min: {MinPing}ms, Max: {MaxPing}ms, Avg: {AvgPing:F1}ms, Jitter: {Jitter:F1}ms\n" +
                      $"Packet Loss: {PacketLoss:F1}%"
         };
 
@@ -511,6 +514,7 @@ public partial class MainViewModel : ObservableObject
         MaxPing = 0;
         AvgPing = 0;
         PacketLoss = 0;
+        Jitter = 0;
         SuccessCount = 0;
         FailCount = 0;
     }
@@ -531,6 +535,17 @@ public partial class MainViewModel : ObservableObject
             MinPing = _successfulPingTimes.Min();
             MaxPing = _successfulPingTimes.Max();
             AvgPing = _successfulPingTimes.Average();
+
+            if (_successfulPingTimes.Count >= 2)
+            {
+                var mean = AvgPing;
+                var variance = _successfulPingTimes.Select(t => Math.Pow(t - mean, 2)).Average();
+                Jitter = Math.Sqrt(variance);
+            }
+            else
+            {
+                Jitter = 0;
+            }
 
             // Update chart
             ChartValues.Add(result.Time);
