@@ -139,11 +139,11 @@ public partial class MultiPingViewModel : ObservableObject
             Target = target.IpAddress,
             DomainName = target.Hostname != target.IpAddress ? target.Hostname : null,
             IsSuccess = target.FailCount == 0,
-            Summary = $"Avg: {target.AvgPing:F0}ms, Loss: {target.PacketLoss:F1}%",
+            Summary = $"Avg: {target.AvgPing:F0}ms, Jitter: {target.Jitter:F0}ms, Loss: {target.PacketLoss:F1}%",
             AvgLatency = (long)target.AvgPing,
             PacketLoss = target.PacketLoss,
             PingCount = target.SuccessCount + target.FailCount,
-            Details = $"Min: {(target.MinPing == long.MaxValue ? 0 : target.MinPing)}ms, Max: {target.MaxPing}ms, Sent: {target.SuccessCount + target.FailCount}, Received: {target.SuccessCount}"
+            Details = $"Min: {(target.MinPing == long.MaxValue ? 0 : target.MinPing)}ms, Max: {target.MaxPing}ms, Avg: {target.AvgPing:F1}ms, Jitter: {target.Jitter:F1}ms, Sent: {target.SuccessCount + target.FailCount}, Received: {target.SuccessCount}"
         };
         
         HistoryService.Instance.AddHistory(historyItem);

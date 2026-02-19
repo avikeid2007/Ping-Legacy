@@ -98,8 +98,7 @@ public sealed partial class SettingsPage : Page
             // Clear ping database
             try
             {
-                // Clear by reinitializing the database 
-                Helpers.SQLiteHelper.InitializeDatabase();
+                Helpers.SQLiteHelper.ClearAllPingMessages();
                 await ShowSuccessDialog("Ping history cleared successfully.");
             }
             catch (Exception ex)
@@ -114,7 +113,7 @@ public sealed partial class SettingsPage : Page
         var dialog = new ContentDialog
         {
             Title = "Clear All History",
-            Content = "This will remove all history from Ping, Traceroute, Port Scan, and Speed Test. Continue?",
+            Content = "This will remove all history from Ping, Multi-Ping, Traceroute, Port Scan, Network Scan, and Speed Test. Continue?",
             PrimaryButtonText = "Clear All",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,

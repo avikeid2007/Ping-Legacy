@@ -1,4 +1,5 @@
 using PingTool.Models;
+using PingTool.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -192,6 +193,33 @@ public class NetworkScannerService
             result.ResponseTime = reply.Status == IPStatus.Success ? reply.RoundtripTime : -1;
             result.Status = reply.Status.ToString();
 
+            if (result.IsOnline && settings.LookupMacVendor)
+            {
+                try
+                {
+                    // MAC addresses are only knowable for on-link (local L2) targets.
+                    // If the IP isn't on any local interface subnet, skip.
+                    if (IPAddress.TryParse(ipAddress, out var parsed) && parsed.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        if (IsOnLocalSubnet(parsed))
+                        {
+                            // Ping should have populated neighbor cache for local targets.
+                            result.MacAddress = NeighborCacheHelper.TryGetMacAddress(ipAddress);
+
+                            if (!string.IsNullOrWhiteSpace(result.MacAddress))
+                            {
+                                await OuiVendorLookupService.Shared.EnsureLoadedAsync(cancellationToken);
+                                result.Vendor = OuiVendorLookupService.Shared.LookupVendor(result.MacAddress);
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // Optional enrichment; ignore failures.
+                }
+            }
+
             if (result.IsOnline && settings.ResolveHostnames)
             {
                 try
@@ -217,6 +245,79 @@ public class NetworkScannerService
         }
 
         return result;
+    }
+
+    private static bool IsOnLocalSubnet(IPAddress target)
+    {
+        // Determine whether the target is on-link for any local interface.
+        // If it isn't, we can't discover its MAC via neighbor/ARP tables.
+        try
+        {
+            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus != OperationalStatus.Up)
+                {
+                    continue;
+                }
+
+                IPInterfaceProperties props;
+                try
+                {
+                    props = nic.GetIPProperties();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                foreach (var unicast in props.UnicastAddresses)
+                {
+                    if (unicast.Address.AddressFamily != AddressFamily.InterNetwork)
+                    {
+                        continue;
+                    }
+
+                    var mask = unicast.IPv4Mask;
+                    if (mask is null)
+                    {
+                        continue;
+                    }
+
+                    if (IsInSameSubnet(unicast.Address, target, mask))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // If anything goes sideways, err on the safe side: don't attempt MAC resolution.
+        }
+
+        return false;
+    }
+
+    private static bool IsInSameSubnet(IPAddress a, IPAddress b, IPAddress mask)
+    {
+        var aBytes = a.GetAddressBytes();
+        var bBytes = b.GetAddressBytes();
+        var mBytes = mask.GetAddressBytes();
+
+        if (aBytes.Length != bBytes.Length || aBytes.Length != mBytes.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < aBytes.Length; i++)
+        {
+            if ((aBytes[i] & mBytes[i]) != (bBytes[i] & mBytes[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private List<string> GenerateIpRange(string startIp, string endIp)

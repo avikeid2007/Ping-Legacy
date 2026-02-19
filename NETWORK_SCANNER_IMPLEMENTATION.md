@@ -48,6 +48,8 @@ Model class containing:
 - string IpAddress
 - bool IsOnline
 - long ResponseTime
+- string? MacAddress
+- string? Vendor
 - string? Hostname
 - DateTime ScanTime
 - string Status
@@ -60,8 +62,16 @@ And settings class:
 - int TimeoutMs
 - int MaxConcurrentScans
 - bool ResolveHostnames
+- bool LookupMacVendor
 - bool UserAcknowledgedLegalNotice
 ```
+
+### MAC Address + Vendor (OUI) Lookup
+For **Local Network** scans, results can be enriched with:
+- MAC address (via Windows neighbor/ARP cache)
+- Vendor name (offline mapping from `PingTool.WinUI3/Assets/oui.csv`)
+
+The repo intentionally ships an empty `oui.csv`. To generate it from a dataset you can redistribute, see `OUI_DATASET.md` and `tools/Import-OuiDataset.ps1`.
 
 ### 2. **PingTool.WinUI3\Services\NetworkScannerService.cs**
 Service implementing:

@@ -4,6 +4,7 @@ using PingTool.Helpers;
 using PingTool.Models;
 using PingTool.Services;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Windows.Storage.Pickers;
 
 namespace PingTool.Views;
@@ -58,6 +59,8 @@ public sealed partial class HistoryPage : Page
                     "Traceroute" => HistoryType.Traceroute,
                     "PortScan" => HistoryType.PortScan,
                     "SpeedTest" => HistoryType.SpeedTest,
+                    "MultiPing" => HistoryType.MultiPing,
+                    "NetworkScan" => HistoryType.NetworkScan,
                     _ => null
                 };
             }
@@ -96,6 +99,39 @@ public sealed partial class HistoryPage : Page
                     FileHelper.CopyText(content);
                 }
             }
+        }
+    }
+
+    private async void ExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        if (FilteredHistory.Count == 0)
+        {
+            return;
+        }
+
+        var csv = HistoryService.Instance.ExportToCsv(FilteredHistory);
+
+        try
+        {
+            var picker = new FileSavePicker();
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            picker.FileTypeChoices.Add("CSV File", new List<string> { ".csv" });
+            picker.SuggestedFileName = _currentFilter.HasValue
+                ? $"history_{_currentFilter.Value}_{DateTime.Now:yyyyMMdd_HHmmss}"
+                : $"history_all_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file != null)
+            {
+                await Windows.Storage.FileIO.WriteTextAsync(file, csv);
+            }
+        }
+        catch
+        {
+            FileHelper.CopyText(csv);
         }
     }
 

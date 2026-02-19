@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace PingTool.Models;
 
@@ -25,6 +27,9 @@ public partial class PingTarget : ObservableObject
 
     [ObservableProperty]
     private double _packetLoss;
+
+    [ObservableProperty]
+    private double _jitter;
 
     [ObservableProperty]
     private bool _isActive;
@@ -61,6 +66,17 @@ public partial class PingTarget : ObservableObject
             PingHistory.Add(latency);
             if (PingHistory.Count > 20)
                 PingHistory.RemoveAt(0);
+
+            if (PingHistory.Count >= 2)
+            {
+                var mean = PingHistory.Average();
+                var variance = PingHistory.Select(t => Math.Pow(t - mean, 2)).Average();
+                Jitter = Math.Sqrt(variance);
+            }
+            else
+            {
+                Jitter = 0;
+            }
             
             Status = PingStatus.Success;
         }
@@ -86,6 +102,7 @@ public partial class PingTarget : ObservableObject
         SuccessCount = 0;
         FailCount = 0;
         PacketLoss = 0;
+        Jitter = 0;
         MinPing = long.MaxValue;
         MaxPing = 0;
         Status = PingStatus.Idle;

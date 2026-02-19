@@ -108,6 +108,9 @@ public partial class NetworkScannerViewModel : ObservableObject
                     TimeoutMs = TimeoutMs,
                     MaxConcurrentScans = MaxConcurrentScans,
                     ResolveHostnames = ResolveHostnames,
+                    // MAC addresses can only be resolved for on-link (local L2) targets.
+                    // We enable it for all scan types; the service will no-op when not applicable.
+                    LookupMacVendor = true,
                     UserAcknowledgedLegalNotice = LegalNoticeAcknowledged
                 };
 
@@ -214,9 +217,9 @@ public partial class NetworkScannerViewModel : ObservableObject
         var results = string.Join("\r\n", ScanResults
             .Where(r => r.IsOnline)
             .OrderBy(r => r.IpAddress)
-            .Select(r => $"{r.IpAddress,-15} | {r.ResponseTime,4}ms | {r.Hostname ?? "N/A"}"));
+            .Select(r => $"{r.IpAddress,-15} | {r.ResponseTimeDisplay,6} | {r.MacAddressDisplay,-17} | {r.VendorDisplay,-20} | {r.Hostname ?? "N/A"}"));
 
-        var content = header + "ONLINE HOSTS:\r\n" + results;
+        var content = header + "ONLINE HOSTS:\r\n" + "IP Address       | Time   | MAC Address        | Vendor               | Hostname\r\n" + results;
 
         await FileHelper.SaveFileAsync(content, "network_scan.txt");
         StatusText = "Results exported successfully";
@@ -225,7 +228,7 @@ public partial class NetworkScannerViewModel : ObservableObject
     [RelayCommand]
     private void CopyResult(NetworkScanResult result)
     {
-        var text = $"{result.IpAddress} | {(result.IsOnline ? $"{result.ResponseTime}ms" : "Offline")} | {result.Hostname ?? "N/A"}";
+        var text = $"{result.IpAddress} | {(result.IsOnline ? result.ResponseTimeDisplay : "Offline")} | {result.MacAddressDisplay} | {result.VendorDisplay} | {result.Hostname ?? "N/A"}";
         FileHelper.CopyText(text);
     }
 
