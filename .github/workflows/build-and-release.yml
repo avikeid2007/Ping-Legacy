@@ -40,7 +40,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         $version = "${{ github.ref_name }}".TrimStart('v')
+        Write-Host "=== Updating version to $version ==="
         & .github/scripts/update-manifest-version.ps1 -Version $version -ManifestPath "PingTool.WinUI3\Package.appxmanifest"
+        Write-Host "=== Cleaning previous builds ==="
+        dotnet clean ${{ env.SOLUTION_PATH }} -c Release
 
     - name: Build MSIX Bundle
       run: |
@@ -85,7 +88,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         $version = "${{ github.ref_name }}".TrimStart('v')
+        Write-Host "=== Updating version to $version ==="
         & .github/scripts/update-manifest-version.ps1 -Version $version -ManifestPath "PingTool.WinUI3\Package.appxmanifest"
+        Write-Host "=== Cleaning previous builds ==="
+        dotnet clean ${{ env.SOLUTION_PATH }} -c Release
 
     - name: Build x64 Release
       run: |
