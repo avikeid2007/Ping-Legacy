@@ -31,6 +31,13 @@ public static class SQLiteHelper
         db.CreateTable<PingMassage>();
     }
 
+    public static void ClearAllPingMessages()
+    {
+        using var db = DbConnection;
+        db.CreateTable<PingMassage>();
+        db.DeleteAll<PingMassage>();
+    }
+
     public static void DeleteOld(int maxCount)
     {
         using var db = DbConnection;

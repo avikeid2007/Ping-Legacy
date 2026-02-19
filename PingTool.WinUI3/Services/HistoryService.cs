@@ -161,6 +161,51 @@ public class HistoryService
         return sb.ToString();
     }
 
+    public string ExportToCsv(IEnumerable<HistoryItem> items)
+    {
+        static string CsvEscape(string? value)
+        {
+            var text = value ?? string.Empty;
+            var mustQuote = text.Contains(',') || text.Contains('"') || text.Contains('\n') || text.Contains('\r');
+            if (text.Contains('"'))
+            {
+                text = text.Replace("\"", "\"\"");
+            }
+            return mustQuote ? $"\"{text}\"" : text;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Timestamp,Type,Target,Domain,Success,Summary,Details,AvgLatencyMs,PacketLossPercent,PingCount,DownloadMbps,UploadMbps,LatencyMs,OpenPorts,ClosedPorts,TotalPorts,HopCount");
+
+        foreach (var item in items)
+        {
+            sb.Append(CsvEscape(item.Timestamp.ToString("o"))).Append(',');
+            sb.Append(CsvEscape(item.TypeDisplay)).Append(',');
+            sb.Append(CsvEscape(item.Target)).Append(',');
+            sb.Append(CsvEscape(item.DomainName)).Append(',');
+            sb.Append(CsvEscape(item.IsSuccess ? "true" : "false")).Append(',');
+            sb.Append(CsvEscape(item.Summary)).Append(',');
+            sb.Append(CsvEscape(item.Details)).Append(',');
+
+            sb.Append(CsvEscape(item.AvgLatency?.ToString())).Append(',');
+            sb.Append(CsvEscape(item.PacketLoss?.ToString("F1"))).Append(',');
+            sb.Append(CsvEscape(item.PingCount?.ToString())).Append(',');
+
+            sb.Append(CsvEscape(item.DownloadSpeed?.ToString("F1"))).Append(',');
+            sb.Append(CsvEscape(item.UploadSpeed?.ToString("F1"))).Append(',');
+            sb.Append(CsvEscape(item.Latency?.ToString())).Append(',');
+
+            sb.Append(CsvEscape(item.OpenPorts?.ToString())).Append(',');
+            sb.Append(CsvEscape(item.ClosedPorts?.ToString())).Append(',');
+            sb.Append(CsvEscape(item.TotalPorts?.ToString())).Append(',');
+            sb.Append(CsvEscape(item.HopCount?.ToString()));
+
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
+
     private void LoadHistory()
     {
         var saved = SettingsHelper.Read<List<HistoryItem>>("UnifiedHistory");

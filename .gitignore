@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Local OUI dataset inputs (generated/downloaded)
+/manuf
+/manuf.gz
+/oui_source.csv

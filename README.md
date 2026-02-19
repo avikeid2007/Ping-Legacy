@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="ScreenShot/logo.png" alt="Ping Legacy Logo" width="120" />
 
@@ -43,8 +43,9 @@
 | Feature | Description |
 |:--------|:------------|
 | 🛤️ **Traceroute** | Hop-by-hop path tracing |
-| � **DNS Lookup** | Hostname resolution & IP records |
-| � **Port Scanner** | Open port detection |
+| 🔍 **DNS Lookup** | Hostname resolution & IP records |
+| 🔌 **Port Scanner** | Open port detection |
+| 🌐 **Network Scanner** | IP range & subnet discovery with MAC/Vendor detection |
 | 🚀 **Speed Test** | Download, upload & latency testing |
 
 </td>
@@ -58,8 +59,9 @@
 |:--------|:------------|
 | ⏰ **Scheduled Pings** | Regular interval monitoring |
 | 🔔 **Drop Notifications** | Toast alerts on connection loss |
-| � **Network Statistics** | Track data usage & connection info |
-| � **Unified History** | Filter & export all operations |
+| 📶 **Network Statistics** | Real-time data usage & connection details |
+| 🌐 **Interface Details** | IP addresses, MAC, DNS, connection speed |
+| 🕘 **Unified History** | Filter & export all operations |
 
 </td>
 <td width="50%">
@@ -70,8 +72,9 @@
 |:--------|:------------|
 | ⭐ **Favorites** | Quick access to frequent hosts |
 | 🌙 **Dark/Light Theme** | System-aware theming |
-| � **Export** | Save results with statistics |
+| 📤 **Export** | Save results with statistics |
 | 🗑️ **Auto Cleanup** | Configurable history retention |
+| 💬 **Feedback Hub** | GitHub, Email, or Export options |
 
 </td>
 </tr>
@@ -165,8 +168,38 @@ dotnet build PingTool.WinUI3.sln -c Release -p:Platform=x64
 
 ---
 
-## 📄 License
+## 📁 Project Structure
+This repository contains:
+- **PingTool.WinUI3** - Modern WinUI 3 application (active development)
+- **Archive-UWP** - Legacy UWP project (archived for reference)
 
+The project has been fully migrated from UWP to WinUI 3 for better performance and modern Windows integration.
+
+---
+
+## 🧭 Network Scanner (MAC & Vendor)
+
+The **Network Scanner** can optionally show:
+- **MAC Address** (from the Windows neighbor/ARP cache)
+- **Vendor** (offline lookup using an OUI dataset shipped with the app)
+
+Important notes:
+- **MAC addresses are only discoverable for on-link targets** (devices on the same local subnet/VLAN). If you scan routed/public networks, MAC/Vendor will often be blank.
+- Some devices/OSes use **randomized / locally administered MACs**; these often won’t match any public OUI list, so Vendor may show as *Unknown*.
+
+### OUI dataset
+
+Vendor lookup is offline and reads `PingTool.WinUI3/Assets/oui.csv`.
+
+The repo includes tooling to generate `oui.csv` from a dataset you can redistribute:
+- Instructions: `OUI_DATASET.md`
+- Import script: `tools/Import-OuiDataset.ps1`
+
+Typical output (from Wireshark `manuf`) is about **~1.1 MB** with **~39k** entries (exact size varies by source/version).
+
+---
+
+## 📄 License
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---

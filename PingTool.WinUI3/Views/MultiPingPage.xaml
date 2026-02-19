@@ -248,6 +248,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel>
@@ -273,6 +274,17 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2">
+                                        <TextBlock
+                                            Text="Jitter"
+                                            FontSize="10"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                        <TextBlock FontSize="13">
+                                            <Run Text="{x:Bind Jitter, Mode=OneWay, Converter={StaticResource DoubleToStringConverter}}" />
+                                            <Run Text="ms" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="3">
                                         <TextBlock
                                             Text="Count"
                                             FontSize="10"

@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer Padding="24,16">
-        <StackPanel Spacing="20" MaxWidth="1200">
+    <ScrollViewer>
+        <StackPanel Padding="24,16" Spacing="20">
             <!-- Header -->
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="12">
                 <Border
                     Width="44"
                     Height="44"
@@ -136,8 +136,7 @@
             <TextBlock
                 Text="Today's Usage"
                 FontWeight="SemiBold"
-                FontSize="18"
-                Margin="0,8,0,0" />
+                FontSize="18" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -146,7 +145,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Download -->
-                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,8,0">
+                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -181,7 +180,7 @@
                 </Border>
 
                 <!-- Upload -->
-                <Border Grid.Column="1" Style="{StaticResource ModernCardStyle}" Margin="8,0,8,0">
+                <Border Grid.Column="1" Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -216,7 +215,7 @@
                 </Border>
 
                 <!-- Total -->
-                <Border Grid.Column="2" Style="{StaticResource ModernCardStyle}" Margin="8,0,0,0">
+                <Border Grid.Column="2" Style="{StaticResource ModernCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -255,8 +254,7 @@
             <TextBlock
                 Text="Last 30 Days"
                 FontWeight="SemiBold"
-                FontSize="18"
-                Margin="0,8,0,0" />
+                FontSize="18" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -265,7 +263,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Download -->
-                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,8,0">
+                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -300,7 +298,7 @@
                 </Border>
 
                 <!-- Upload -->
-                <Border Grid.Column="1" Style="{StaticResource ModernCardStyle}" Margin="8,0,8,0">
+                <Border Grid.Column="1" Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -335,7 +333,7 @@
                 </Border>
 
                 <!-- Total -->
-                <Border Grid.Column="2" Style="{StaticResource ModernCardStyle}" Margin="8,0,0,0">
+                <Border Grid.Column="2" Style="{StaticResource ModernCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Border
@@ -419,6 +417,227 @@
                     </StackPanel>
                 </Grid>
             </Border>
+
+            <!-- Network Interface Details -->
+            <TextBlock
+                Text="Network Interface"
+                FontWeight="SemiBold"
+                FontSize="18" />
+            <Border Style="{StaticResource ModernCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 1 -->
+                    <StackPanel Padding="0,0,16,16">
+                        <TextBlock
+                            Text="Interface Name"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="InterfaceName"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Padding="16,0,0,16">
+                        <TextBlock
+                            Text="Connection Speed"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="ConnectionSpeed"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Row 2 -->
+                    <StackPanel Grid.Row="1" Padding="0,0,16,16">
+                        <TextBlock
+                            Text="IPv4 Address"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="IPv4Address"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Padding="16,0,0,16">
+                        <TextBlock
+                            Text="IPv6 Address"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="IPv6Address"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Row 3 -->
+                    <StackPanel Grid.Row="2" Padding="0,0,16,0">
+                        <TextBlock
+                            Text="MAC Address"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="MacAddress"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="1" Padding="16,0,0,0">
+                        <TextBlock
+                            Text="DNS Servers"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="DnsServers"
+                            Text="--"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Additional Statistics -->
+            <TextBlock
+                Text="Additional Statistics"
+                FontWeight="SemiBold"
+                FontSize="18" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Current Session -->
+                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border
+                                Width="36"
+                                Height="36"
+                                CornerRadius="8"
+                                Background="#22F59E0B">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xE916;"
+                                    FontSize="16"
+                                    Foreground="#F59E0B"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock
+                                Text="Current Session"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="SessionData"
+                            Text="0 MB"
+                            FontSize="24"
+                            FontWeight="Bold"
+                            Margin="0,12,0,0" />
+                        <TextBlock
+                            Text="Since connection started"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Roaming Data -->
+                <Border Grid.Column="1" Style="{StaticResource ModernCardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border
+                                Width="36"
+                                Height="36"
+                                CornerRadius="8"
+                                Background="#22EF4444">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xE909;"
+                                    FontSize="16"
+                                    Foreground="#EF4444"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock
+                                Text="Roaming Data"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="RoamingData"
+                            Text="0 MB"
+                            FontSize="24"
+                            FontWeight="Bold"
+                            Margin="0,12,0,0" />
+                        <TextBlock
+                            Text="Last 30 days"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Average Speed -->
+                <Border Grid.Column="2" Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border
+                                Width="36"
+                                Height="36"
+                                CornerRadius="8"
+                                Background="#2206B6D4">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Glyph="&#xEC4A;"
+                                    FontSize="16"
+                                    Foreground="#06B6D4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock
+                                Text="Avg. Speed"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="AverageSpeed"
+                            Text="-- Mbps"
+                            FontSize="24"
+                            FontWeight="Bold"
+                            Margin="0,12,0,0" />
+                        <TextBlock
+                            Text="Upload/Download combined"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </Page>
