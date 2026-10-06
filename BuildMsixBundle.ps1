@@ -12,7 +12,7 @@ Write-Host "Detected version from manifest: $version" -ForegroundColor Cyan
 # Set the configuration
 $Configuration = "Release"
 $ProjectPath = "PingTool.WinUI3\PingTool.WinUI3.csproj"
-$Platforms = @("x86", "x64", "ARM64")
+$Platforms = @("x64")
 
 # Clean previous builds
 Write-Host "`nCleaning previous builds..." -ForegroundColor Cyan
@@ -91,7 +91,7 @@ if ($makeAppxPath -and (Test-Path $makeAppxPath)) {
     $bundleContent | Out-File -FilePath $bundleMapPath -Encoding UTF8
 
     # Create the bundle using version from manifest
-    $bundleName = "PingTool.WinUI3_${version}_x86_x64_ARM64.msixbundle"
+    $bundleName = "PingTool.WinUI3_${version}_x64.msixbundle"
     $bundlePath = "$packageDir\$bundleName"
 
     Write-Host "`nCreating bundle with version $version..." -ForegroundColor Cyan
