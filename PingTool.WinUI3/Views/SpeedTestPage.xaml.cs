@@ -33,7 +33,38 @@ public sealed partial class SpeedTestPage : Page
         DispatcherQueue.TryEnqueue(() =>
         {
             StatusText.Text = status;
+
+            // Pulse whichever metric's icon matches the phase currently being measured.
+            if (status.Contains("download", StringComparison.OrdinalIgnoreCase))
+            {
+                UploadPulseStoryboard.Stop();
+                DownloadPulseStoryboard.Begin();
+            }
+            else if (status.Contains("upload", StringComparison.OrdinalIgnoreCase))
+            {
+                DownloadPulseStoryboard.Stop();
+                UploadPulseStoryboard.Begin();
+            }
+            else
+            {
+                DownloadPulseStoryboard.Stop();
+                UploadPulseStoryboard.Stop();
+            }
         });
+    }
+
+    /// <summary>Eases a TextBlock's displayed number up from 0 to <paramref name="toValue"/>.</summary>
+    private static async Task AnimateNumberAsync(TextBlock target, double toValue, Func<double, string> format, int durationMs = 650)
+    {
+        const int frameMs = 16;
+        var steps = Math.Max(1, durationMs / frameMs);
+        for (var i = 1; i <= steps; i++)
+        {
+            var eased = 1 - Math.Pow(1 - (double)i / steps, 3);
+            target.Text = format(toValue * eased);
+            await Task.Delay(frameMs);
+        }
+        target.Text = format(toValue);
     }
 
     private async void StartButton_Click(object sender, RoutedEventArgs e)
@@ -45,6 +76,8 @@ public sealed partial class SpeedTestPage : Page
             StartButtonText.Text = "Start Test";
             StartButtonIcon.Glyph = "\uE768";
             ProgressBar.Visibility = Visibility.Collapsed;
+            DownloadPulseStoryboard.Stop();
+            UploadPulseStoryboard.Stop();
             return;
         }
 
@@ -67,9 +100,12 @@ public sealed partial class SpeedTestPage : Page
 
             if (result.IsSuccess)
             {
-                DownloadSpeed.Text = result.DownloadSpeedMbps.ToString("F1");
-                UploadSpeed.Text = result.UploadSpeedMbps.ToString("F1");
-                Latency.Text = $"{result.LatencyMs} ms";
+                ResultPopStoryboard.Begin();
+                await Task.WhenAll(
+                    AnimateNumberAsync(DownloadSpeed, result.DownloadSpeedMbps, v => v.ToString("F1")),
+                    AnimateNumberAsync(UploadSpeed, result.UploadSpeedMbps, v => v.ToString("F1")),
+                    AnimateNumberAsync(Latency, result.LatencyMs, v => $"{v:F0} ms"));
+
                 StatusText.Text = $"Test completed at {result.TestTime:HH:mm:ss}";
 
                 // Save to history
@@ -90,6 +126,8 @@ public sealed partial class SpeedTestPage : Page
             StartButtonText.Text = "Start Test";
             StartButtonIcon.Glyph = "\uE768";
             ProgressBar.Visibility = Visibility.Collapsed;
+            DownloadPulseStoryboard.Stop();
+            UploadPulseStoryboard.Stop();
         }
     }
 

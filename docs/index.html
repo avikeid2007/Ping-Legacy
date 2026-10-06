@@ -4,11 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ping Legacy - Modern Network Diagnostic Tool</title>
+    <title>Ping Legacy - Modern Network Diagnostic Tool for Windows</title>
     <meta name="description"
         content="A modern network diagnostic tool for Windows with ping, traceroute, port scanner, speed test, and multi-ping monitoring.">
+    <meta name="theme-color" content="#0F172A">
+
+    <!-- Open Graph / Social previews -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ping Legacy - Modern Network Diagnostic Tool">
+    <meta property="og:description"
+        content="Ping, traceroute, port scanner, speed test, and multi-ping monitoring for Windows 10/11.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/logo.png">
+    <meta property="og:url" content="https://avikeid2007.github.io/Ping-Tool/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@avikeid2007">
+
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #7C3AED;
@@ -17,8 +30,11 @@
             --success: #10B981;
             --bg-dark: #0F172A;
             --bg-card: #1E293B;
+            --bg-card-hover: #243047;
+            --border: rgba(255, 255, 255, 0.08);
             --text: #F8FAFC;
             --text-secondary: #94A3B8;
+            --header-h: 72px;
         }
 
         * {
@@ -27,12 +43,17 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
             color: var(--text);
             min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
@@ -41,15 +62,174 @@
             padding: 0 24px;
         }
 
-        /* Hero Section */
+        a {
+            color: inherit;
+        }
+
+        /* Header / Nav */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+
+        .brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            padding: 9px 18px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 760px) {
+            .nav-links {
+                position: fixed;
+                top: var(--header-h);
+                left: 0;
+                right: 0;
+                background: var(--bg-dark);
+                border-bottom: 1px solid var(--border);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px 24px;
+                gap: 18px;
+                transform: translateY(-150%);
+                opacity: 0;
+                transition: transform 0.25s ease, opacity 0.25s ease;
+            }
+
+            .nav-links.open {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+        }
+
+        /* Hero */
         .hero {
+            position: relative;
             text-align: center;
-            padding: 80px 0 60px;
+            padding: 100px 0 70px;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            inset: -200px 0 auto 0;
+            height: 600px;
+            pointer-events: none;
+            background: radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.35), transparent 60%),
+                radial-gradient(circle at 70% 20%, rgba(139, 92, 246, 0.25), transparent 55%);
+            filter: blur(10px);
+            animation: drift 16s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate3d(-20px, 0, 0) scale(1);
+            }
+
+            to {
+                transform: translate3d(20px, 20px, 0) scale(1.08);
+            }
+        }
+
+        .hero>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
         }
 
         .logo {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             border-radius: 24px;
             margin-bottom: 24px;
             box-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
@@ -57,8 +237,9 @@
 
         h1 {
             font-size: 3.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -66,9 +247,9 @@
         }
 
         .tagline {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             color: var(--text-secondary);
-            max-width: 600px;
+            max-width: 620px;
             margin: 0 auto 32px;
         }
 
@@ -77,6 +258,7 @@
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 36px;
         }
 
         .btn {
@@ -87,7 +269,7 @@
             border-radius: 12px;
             font-weight: 600;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
 
         .btn-primary {
@@ -103,35 +285,81 @@
         .btn-secondary {
             background: var(--bg-card);
             color: var(--text);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
         }
 
-        /* Screenshot */
+        .trust-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .trust-pills span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        /* Screenshots */
         .screenshot-section {
-            padding: 40px 0;
-            text-align: center;
+            padding: 40px 0 20px;
         }
 
-        .screenshot {
-            max-width: 100%;
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .screenshot-frame {
             border-radius: 16px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+            background: var(--bg-card);
         }
 
-        /* Features Section */
+        .screenshot-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+            transition: transform 0.4s ease;
+        }
+
+        .screenshot-frame:hover img {
+            transform: scale(1.03);
+        }
+
+        @media (max-width: 760px) {
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sections */
         .features {
-            padding: 80px 0;
+            padding: 90px 0;
         }
 
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 16px;
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 12px;
         }
 
         .section-subtitle {
@@ -143,20 +371,28 @@
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
+            gap: 20px;
         }
 
         .feature-card {
             background: var(--bg-card);
             border-radius: 16px;
             padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        .feature-card.in-view {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .feature-card:hover {
             transform: translateY(-4px);
             border-color: var(--primary);
+            background: var(--bg-card-hover);
         }
 
         .feature-icon {
@@ -172,7 +408,7 @@
         }
 
         .feature-card h3 {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             margin-bottom: 8px;
         }
 
@@ -181,45 +417,122 @@
             font-size: 0.95rem;
         }
 
-        /* New Badge */
         .badge {
             display: inline-block;
             background: var(--success);
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
+            font-weight: 700;
             padding: 2px 8px;
             border-radius: 12px;
-            margin-left: 8px;
+            margin-left: 6px;
             vertical-align: middle;
+        }
+
+        /* Download section */
+        .download {
+            padding: 20px 0 90px;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .download-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+        }
+
+        .download-card .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .download-card h3 {
+            margin-bottom: 8px;
+        }
+
+        .download-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            min-height: 42px;
         }
 
         /* Footer */
         footer {
-            text-align: center;
-            padding: 40px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            padding: 56px 0 32px;
         }
 
-        footer a {
-            color: var(--secondary);
-            text-decoration: none;
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
         }
 
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-links {
+        .footer-brand {
             display: flex;
-            gap: 24px;
-            justify-content: center;
-            margin-bottom: 16px;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .footer-brand img {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--text);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 760px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 2.4rem;
             }
 
             .hero {
@@ -230,24 +543,61 @@
                 padding: 60px 0;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html,
+            .hero-glow,
+            .feature-card,
+            .screenshot-frame img {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <header>
+        <div class="container nav-inner">
+            <a href="#top" class="brand">
+                <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/icon.png" alt="Ping Legacy">
+                Ping Legacy
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <nav class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#screenshots">Screenshots</a>
+                <a href="#download">Download</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="https://github.com/avikeid2007/Ping-Tool">GitHub</a>
+                <a href="#download" class="nav-cta">Get the App</a>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
         <!-- Hero Section -->
-        <section class="hero">
+        <section class="hero" id="top">
+            <div class="hero-glow"></div>
+            <span class="eyebrow"><span class="dot"></span> Free &amp; Open Source</span>
             <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/logo.png"
                 alt="Ping Legacy" class="logo">
             <h1>Ping Legacy</h1>
             <p class="tagline">A modern network diagnostic tool for Windows. Test your connection status and quality
-                with powerful features.</p>
+                with powerful, real-time features.</p>
             <div class="cta-buttons">
                 <a href="https://www.microsoft.com/store/apps/9P1KVKT59T2M" class="btn btn-primary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" />
                     </svg>
                     Get on Microsoft Store
+                </a>
+                <a href="https://github.com/avikeid2007/Ping-Tool/releases/latest" class="btn btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2a1 1 0 011 1v10.59l3.3-3.3a1 1 0 111.4 1.42l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.42l3.3 3.3V3a1 1 0 011-1zM5 20a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1z" />
+                    </svg>
+                    Direct Download
                 </a>
                 <a href="https://github.com/avikeid2007/Ping-Tool" class="btn btn-secondary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -257,116 +607,213 @@
                     View on GitHub
                 </a>
             </div>
+            <div class="trust-pills">
+                <span>&#128737;&#65039; Windows 10 &amp; 11</span>
+                <span>&#9889; Lightweight &amp; fast</span>
+                <span>&#128274; No telemetry sold, ever</span>
+                <span>&#127381; MIT Licensed</span>
+            </div>
         </section>
 
         <!-- Screenshots -->
-        <section class="screenshot-section">
-            <div class="screenshot-grid"
-                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 1000px; margin: 0 auto;">
-                <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142133.png"
-                    alt="Main Ping" class="screenshot" style="width: 100%;">
-                <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142206.png"
-                    alt="Multi-Ping Monitor" class="screenshot" style="width: 100%;">
-                <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142244.png"
-                    alt="Speed Test" class="screenshot" style="width: 100%;">
-                <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142301.png"
-                    alt="History" class="screenshot" style="width: 100%;">
+        <section class="screenshot-section" id="screenshots">
+            <div class="screenshot-grid">
+                <div class="screenshot-frame">
+                    <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142133.png"
+                        alt="Main Ping view" loading="lazy" decoding="async">
+                </div>
+                <div class="screenshot-frame">
+                    <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142206.png"
+                        alt="Multi-Ping Monitor dashboard" loading="lazy" decoding="async">
+                </div>
+                <div class="screenshot-frame">
+                    <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142244.png"
+                        alt="Speed Test screen" loading="lazy" decoding="async">
+                </div>
+                <div class="screenshot-frame">
+                    <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/ScreenShot/Screenshot%202026-01-16%20142301.png"
+                        alt="Unified History view" loading="lazy" decoding="async">
+                </div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section class="features">
+        <section class="features" id="features">
             <h2 class="section-title">Features</h2>
             <p class="section-subtitle">Everything you need to diagnose and monitor your network</p>
 
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
+                    <div class="feature-icon">&#127760;</div>
                     <h3>Live Ping Testing</h3>
                     <p>Continuous ICMP ping to any host with real-time results and statistics.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
+                    <div class="feature-icon">&#127919;</div>
                     <h3>Multi-Ping Monitor <span class="badge">NEW</span></h3>
                     <p>Ping up to 8 targets simultaneously with a live dashboard and real-time updates.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">📈</div>
+                    <div class="feature-icon">&#128200;</div>
                     <h3>Real-time Graph</h3>
                     <p>Visual latency chart showing ping trends over time with gradient visualization.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🛤️</div>
+                    <div class="feature-icon">&#128506;&#65039;</div>
                     <h3>Traceroute</h3>
                     <p>Trace hop-by-hop path to any destination with timing and host resolution.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
+                    <div class="feature-icon">&#128272;</div>
                     <h3>Port Scanner</h3>
                     <p>Check open ports on any host with customizable port ranges.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🚀</div>
+                    <div class="feature-icon">&#128640;</div>
                     <h3>Speed Test</h3>
                     <p>Test your download and upload speeds with latency measurement.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">📜</div>
+                    <div class="feature-icon">&#128220;</div>
                     <h3>Unified History <span class="badge">NEW</span></h3>
                     <p>View all past operations with filtering, search, and export capabilities.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">📉</div>
+                    <div class="feature-icon">&#128201;</div>
                     <h3>Network Statistics</h3>
                     <p>Track network data usage, connection info, and daily averages.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
+                    <div class="feature-icon">&#128269;</div>
                     <h3>DNS Lookup</h3>
                     <p>Resolve hostnames and display IPv4, IPv6, and canonical records.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">⏰</div>
+                    <div class="feature-icon">&#9200;</div>
                     <h3>Scheduled Pings</h3>
                     <p>Monitor hosts at regular intervals with background notifications.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🌙</div>
+                    <div class="feature-icon">&#127769;</div>
                     <h3>Dark/Light Theme</h3>
                     <p>System-aware theming with beautiful modern UI design.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🗑️</div>
+                    <div class="feature-icon">&#128465;&#65039;</div>
                     <h3>Auto Cleanup <span class="badge">NEW</span></h3>
                     <p>Configurable history retention with automatic cleanup of old records.</p>
                 </div>
             </div>
         </section>
 
+        <!-- Download Section -->
+        <section class="download" id="download">
+            <h2 class="section-title">Download</h2>
+            <p class="section-subtitle">Pick whichever install method works best for you</p>
+
+            <div class="download-grid">
+                <div class="download-card">
+                    <div class="icon">&#128230;</div>
+                    <h3>Microsoft Store</h3>
+                    <p>Automatic updates and sandboxed installation. Recommended for most users.</p>
+                    <a href="https://www.microsoft.com/store/apps/9P1KVKT59T2M" class="btn btn-primary">Get the App</a>
+                </div>
+                <div class="download-card">
+                    <div class="icon">&#128190;</div>
+                    <h3>Traditional Installer</h3>
+                    <p>Offline .exe installer, no Microsoft account needed. Great for IT deployment.</p>
+                    <a href="https://github.com/avikeid2007/Ping-Tool/releases/latest" class="btn btn-secondary">Download .exe</a>
+                </div>
+                <div class="download-card">
+                    <div class="icon">&#129513;</div>
+                    <h3>MSIX Bundle</h3>
+                    <p>Sideload via .msixbundle for IT administrators or enterprise rollout.</p>
+                    <a href="https://github.com/avikeid2007/Ping-Tool/releases/latest" class="btn btn-secondary">Download MSIX</a>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer>
-            <div class="footer-links">
-                <a href="https://github.com/avikeid2007/Ping-Tool">GitHub</a>
-                <a href="https://www.microsoft.com/store/apps/9P1KVKT59T2M">Microsoft Store</a>
-                <a href="https://twitter.com/avikeid2007">Twitter</a>
-                <a href="http://avnishkumar.co.in">Website</a>
-                <a href="privacy.html">Privacy Policy</a>
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="https://raw.githubusercontent.com/avikeid2007/Ping-Tool/master/icon.png" alt="Ping Legacy">
+                        Ping Legacy
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 280px;">
+                        A modern, open-source network diagnostic tool for Windows.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#screenshots">Screenshots</a>
+                    <a href="#download">Download</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <a href="https://github.com/avikeid2007/Ping-Tool">GitHub Repo</a>
+                    <a href="https://github.com/avikeid2007/Ping-Tool/releases">Releases</a>
+                    <a href="https://github.com/avikeid2007/Ping-Tool/issues">Report an Issue</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal &amp; Contact</h4>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="https://twitter.com/avikeid2007">Twitter</a>
+                    <a href="http://avnishkumar.co.in">Website</a>
+                </div>
             </div>
-            <p style="color: var(--text-secondary);">Made with ❤️ by <a href="https://github.com/avikeid2007">Avnish
-                    Kumar</a></p>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Ping Legacy. All rights reserved.</span>
+                <span>Made with &#10084;&#65039; by <a href="https://github.com/avikeid2007"
+                        style="color: var(--secondary); text-decoration: none;">Avnish Kumar</a></span>
+            </div>
         </footer>
     </div>
+
+    <script>
+        // Mobile nav toggle
+        var navToggle = document.getElementById('navToggle');
+        var navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', function () {
+            var isOpen = navLinks.classList.toggle('open');
+            navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+        navLinks.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                navLinks.classList.remove('open');
+                navToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Scroll-reveal for feature cards
+        var cards = document.querySelectorAll('.feature-card');
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            cards.forEach(function (card) { observer.observe(card); });
+        } else {
+            cards.forEach(function (card) { card.classList.add('in-view'); });
+        }
+    </script>
 </body>
 
 </html>

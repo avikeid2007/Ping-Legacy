@@ -14,6 +14,11 @@ public static class NavigationService
 
     public static bool CanGoBack => Frame?.CanGoBack ?? false;
 
+    /// <summary>Set by App.OnLaunched when the app was launched from a jump list item, before
+    /// ShellPage's default "navigate to MainPage" Loaded handler runs. ShellPage consumes and
+    /// clears this once it navigates, so it only affects the launch that set it.</summary>
+    public static Type? PendingLaunchPage { get; set; }
+
     public static void GoBack()
     {
         if (CanGoBack)

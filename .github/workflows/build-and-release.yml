@@ -13,6 +13,7 @@ env:
   DOTNET_VERSION: '8.0.x'
   PROJECT_PATH: 'PingTool.WinUI3/PingTool.WinUI3.csproj'
   SOLUTION_PATH: 'PingTool.WinUI3.sln'
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
   build-msix-bundle:
@@ -40,13 +41,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         $version = "${{ github.ref_name }}".TrimStart('v')
-        Write-Host "Updating manifest to version: $version"
-        $manifestPath = "PingTool.WinUI3\Package.appxmanifest"
-        $manifest = Get-Content $manifestPath -Raw
-        $manifest = $manifest -replace 'Version="[\d\.]+"', "Version=`"$version`""
-        $manifest | Set-Content $manifestPath -Encoding UTF8
-        Write-Host "Manifest updated successfully"
-        Get-Content $manifestPath | Select-String "Version="
+        Write-Host "=== Updating version to $version ==="
+        & .github/scripts/update-manifest-version.ps1 -Version $version -ManifestPath "PingTool.WinUI3\Package.appxmanifest"
+        Write-Host "=== Cleaning previous builds ==="
+        dotnet clean ${{ env.SOLUTION_PATH }} -c Release
 
     - name: Build MSIX Bundle
       run: |
@@ -91,13 +89,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         $version = "${{ github.ref_name }}".TrimStart('v')
-        Write-Host "Updating manifest to version: $version"
-        $manifestPath = "PingTool.WinUI3\Package.appxmanifest"
-        $manifest = Get-Content $manifestPath -Raw
-        $manifest = $manifest -replace 'Version="[\d\.]+"', "Version=`"$version`""
-        $manifest | Set-Content $manifestPath -Encoding UTF8
-        Write-Host "Manifest updated successfully"
-        Get-Content $manifestPath | Select-String "Version="
+        Write-Host "=== Updating version to $version ==="
+        & .github/scripts/update-manifest-version.ps1 -Version $version -ManifestPath "PingTool.WinUI3\Package.appxmanifest"
+        Write-Host "=== Cleaning previous builds ==="
+        dotnet clean ${{ env.SOLUTION_PATH }} -c Release
 
     - name: Build x64 Release
       run: |

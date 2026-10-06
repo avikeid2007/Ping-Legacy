@@ -8,40 +8,40 @@ namespace PingTool.Models;
 public partial class PingTarget : ObservableObject
 {
     [ObservableProperty]
-    private string _hostname = string.Empty;
+    public partial string Hostname { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _ipAddress = string.Empty;
+    public partial string IpAddress { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private long _lastPing;
+    public partial long LastPing { get; set; }
 
     [ObservableProperty]
-    private double _avgPing;
+    public partial double AvgPing { get; set; }
 
     [ObservableProperty]
-    private int _successCount;
+    public partial int SuccessCount { get; set; }
 
     [ObservableProperty]
-    private int _failCount;
+    public partial int FailCount { get; set; }
 
     [ObservableProperty]
-    private double _packetLoss;
+    public partial double PacketLoss { get; set; }
 
     [ObservableProperty]
-    private double _jitter;
+    public partial double Jitter { get; set; }
 
     [ObservableProperty]
-    private bool _isActive;
+    public partial bool IsActive { get; set; }
 
     [ObservableProperty]
-    private PingStatus _status = PingStatus.Idle;
+    public partial PingStatus Status { get; set; } = PingStatus.Idle;
 
     [ObservableProperty]
-    private long _minPing = long.MaxValue;
+    public partial long MinPing { get; set; } = long.MaxValue;
 
     [ObservableProperty]
-    private long _maxPing;
+    public partial long MaxPing { get; set; }
 
     public ObservableCollection<long> PingHistory { get; } = new();
 

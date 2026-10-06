@@ -28,6 +28,30 @@ public sealed partial class MainPage : Page
 
         // Subscribe to chart data changes
         ViewModel.ChartValues.CollectionChanged += (s, e) => DrawChart();
+
+        // Resize/restore the actual OS window whenever compact mode is toggled.
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(ViewModel.IsCompactMode)) return;
+
+        if (ViewModel.IsCompactMode)
+        {
+            CompactModeService.Enter(App.MainWindow);
+        }
+        else
+        {
+            CompactModeService.Exit(App.MainWindow);
+        }
+    }
+
+    private void ShareResults_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.PingCollection.Count == 0 || App.MainWindow is not Window window) return;
+
+        ShareService.ShareText(window, $"Ping results - {ViewModel.HostNameOrAddress}", ViewModel.BuildShareText());
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -254,6 +278,24 @@ public sealed partial class MainPage : Page
     public Visibility GetEmptyVisibility(int count) =>
         count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
+    public Visibility GetFullModeVisibility(bool isCompactMode) =>
+        isCompactMode ? Visibility.Collapsed : Visibility.Visible;
+
+    public Visibility GetCompactModeVisibility(bool isCompactMode) =>
+        isCompactMode ? Visibility.Visible : Visibility.Collapsed;
+
+    public string GetLatestPingSummary(int count)
+    {
+        if (count == 0 || ViewModel.PingCollection.Count == 0) return "--";
+        var latest = ViewModel.PingCollection[^1];
+        return $"{latest.Time} ms";
+    }
+
+    private void ExitCompactMode_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ToggleCompactModeCommand.Execute(null);
+    }
+
     public string FormatAvg(double avg) =>
         avg.ToString("F1");
 
@@ -298,6 +340,9 @@ public sealed partial class MainPage : Page
 
     public string GetDnsError(DnsLookupResult? result) =>
         result?.Error ?? "";
+
+    public Visibility GetVisibility(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? Visibility.Collapsed : Visibility.Visible;
 
     #endregion
 }

@@ -6,6 +6,9 @@ namespace PingTool.Helpers;
 public static class SQLiteHelper
 {
     private static string? _dbPath;
+    // Serializes all access: concurrent SQLiteConnections from different threads to the
+    // same file (e.g. a Save while DeleteOld is running) throw "database is locked" otherwise.
+    private static readonly object DbLock = new();
 
     private static string DbPath
     {
@@ -23,28 +26,48 @@ public static class SQLiteHelper
         }
     }
 
-    private static SQLiteConnection DbConnection => new(new SQLiteConnectionString(DbPath));
+    private static SQLiteConnection DbConnection
+    {
+        get
+        {
+            var db = new SQLiteConnection(new SQLiteConnectionString(DbPath));
+            db.BusyTimeout = TimeSpan.FromSeconds(5);
+            // PRAGMA journal_mode returns the resulting mode as a row, so Execute() (which
+            // expects SQLITE_DONE) throws "not an error" - must use ExecuteScalar instead.
+            db.ExecuteScalar<string>("PRAGMA journal_mode=WAL;");
+            return db;
+        }
+    }
 
     public static void InitializeDatabase()
     {
-        using var db = DbConnection;
-        db.CreateTable<PingMassage>();
+        lock (DbLock)
+        {
+            using var db = DbConnection;
+            db.CreateTable<PingMassage>();
+        }
     }
 
     public static void ClearAllPingMessages()
     {
-        using var db = DbConnection;
-        db.CreateTable<PingMassage>();
-        db.DeleteAll<PingMassage>();
+        lock (DbLock)
+        {
+            using var db = DbConnection;
+            db.CreateTable<PingMassage>();
+            db.DeleteAll<PingMassage>();
+        }
     }
 
     public static void DeleteOld(int maxCount)
     {
-        using var db = DbConnection;
-        var oldHistory = GetAllDistinct().OrderByDescending(x => x.Date).Skip(maxCount).ToList();
-        foreach (var item in oldHistory)
+        lock (DbLock)
         {
-            Delete(db, item.PingId);
+            using var db = DbConnection;
+            var oldHistory = GetAllDistinctCore(db).OrderByDescending(x => x.Date).Skip(maxCount).ToList();
+            foreach (var item in oldHistory)
+            {
+                Delete(db, item.PingId);
+            }
         }
     }
 
@@ -59,35 +82,50 @@ public static class SQLiteHelper
 
     public static IEnumerable<PingMassage> GetAll(Guid? pingId = null)
     {
-        using var db = DbConnection;
-        var query = db.Table<PingMassage>();
-        if (pingId != null)
+        lock (DbLock)
         {
-            query = query.Where(x => x.PingId == pingId).OrderBy(x => x.Id);
+            using var db = DbConnection;
+            var query = db.Table<PingMassage>();
+            if (pingId != null)
+            {
+                query = query.Where(x => x.PingId == pingId).OrderBy(x => x.Id);
+            }
+            return query.ToList();
         }
-        return query.ToList();
     }
 
     public static PingMassage? Get(int id)
     {
-        using var db = DbConnection;
-        return db.Table<PingMassage>().FirstOrDefault(x => x.Id == id);
+        lock (DbLock)
+        {
+            using var db = DbConnection;
+            return db.Table<PingMassage>().FirstOrDefault(x => x.Id == id);
+        }
     }
 
     public static void Save(PingMassage ping)
     {
-        using var db = DbConnection;
-        db.Insert(ping);
+        lock (DbLock)
+        {
+            using var db = DbConnection;
+            db.Insert(ping);
+        }
     }
 
     public static IEnumerable<PingMassage> GetAllDistinct()
     {
-        using var db = DbConnection;
-        return db.Table<PingMassage>()
+        lock (DbLock)
+        {
+            using var db = DbConnection;
+            return GetAllDistinctCore(db);
+        }
+    }
+
+    private static List<PingMassage> GetAllDistinctCore(SQLiteConnection db) =>
+        db.Table<PingMassage>()
             .ToList()
             .GroupBy(x => x.PingId)
             .Select(x => x.First())
             .OrderByDescending(x => x.Date)
             .ToList();
-    }
 }

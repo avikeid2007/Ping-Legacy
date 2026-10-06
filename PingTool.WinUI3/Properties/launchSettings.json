@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "PingTool.WinUI3 (Package)": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

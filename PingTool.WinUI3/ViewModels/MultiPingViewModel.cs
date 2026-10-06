@@ -14,13 +14,23 @@ public partial class MultiPingViewModel : ObservableObject
 
     public ObservableCollection<PingTarget> Targets { get; } = new();
 
-    [ObservableProperty]
-    private string _newHostname = string.Empty;
+    public ObservableCollection<MultiPingProfile> SavedProfiles { get; } = new();
 
     [ObservableProperty]
-    private bool _isAllRunning;
+    public partial string NewHostname { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string NewProfileName { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool IsAllRunning { get; set; }
 
     public bool HasTargets => Targets.Count > 0;
+
+    public MultiPingViewModel()
+    {
+        LoadProfiles();
+    }
 
     [RelayCommand]
     private void AddTarget()
@@ -70,6 +80,67 @@ public partial class MultiPingViewModel : ObservableObject
         StopAll();
         Targets.Clear();
         OnPropertyChanged(nameof(HasTargets));
+    }
+
+    [RelayCommand]
+    private void SaveProfile()
+    {
+        var name = NewProfileName.Trim();
+        if (string.IsNullOrWhiteSpace(name) || Targets.Count == 0) return;
+
+        var hostnames = Targets.Select(t => t.Hostname).ToList();
+        var existing = SavedProfiles.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (existing != null)
+        {
+            existing.Hostnames = hostnames;
+        }
+        else
+        {
+            SavedProfiles.Add(new MultiPingProfile { Name = name, Hostnames = hostnames });
+        }
+
+        NewProfileName = string.Empty;
+        PersistProfiles();
+    }
+
+    [RelayCommand]
+    private void LoadProfile(MultiPingProfile profile)
+    {
+        StopAll();
+        Targets.Clear();
+        foreach (var host in profile.Hostnames)
+        {
+            if (Targets.Count >= 8) break;
+            if (!Targets.Any(t => t.Hostname.Equals(host, StringComparison.OrdinalIgnoreCase)))
+            {
+                Targets.Add(new PingTarget { Hostname = host });
+            }
+        }
+        OnPropertyChanged(nameof(HasTargets));
+    }
+
+    [RelayCommand]
+    private void DeleteProfile(MultiPingProfile profile)
+    {
+        SavedProfiles.Remove(profile);
+        PersistProfiles();
+    }
+
+    private void LoadProfiles()
+    {
+        var profiles = SettingsHelper.Read<List<MultiPingProfile>>("MultiPingProfiles");
+        if (profiles != null)
+        {
+            foreach (var profile in profiles)
+            {
+                SavedProfiles.Add(profile);
+            }
+        }
+    }
+
+    private void PersistProfiles()
+    {
+        SettingsHelper.Save("MultiPingProfiles", SavedProfiles.ToList());
     }
 
     [RelayCommand]

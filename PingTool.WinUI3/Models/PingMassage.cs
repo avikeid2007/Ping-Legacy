@@ -6,27 +6,27 @@ namespace PingTool.Models;
 public partial class PingMassage : ObservableObject
 {
     [ObservableProperty]
-    [property: PrimaryKey, AutoIncrement]
-    private int _id;
+    [PrimaryKey, AutoIncrement]
+    public partial int Id { get; set; }
 
     [ObservableProperty]
-    private Guid _pingId;
+    public partial Guid PingId { get; set; }
 
     [ObservableProperty]
-    private string _ipAddress = string.Empty;
+    public partial string IpAddress { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private int _size;
+    public partial int Size { get; set; }
 
     [ObservableProperty]
-    private long _time;
+    public partial long Time { get; set; }
 
     [ObservableProperty]
-    private int _ttl;
+    public partial int Ttl { get; set; }
 
     [ObservableProperty]
-    private string _response = string.Empty;
+    public partial string Response { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private DateTimeOffset _date;
+    public partial DateTimeOffset Date { get; set; }
 }

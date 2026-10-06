@@ -6,24 +6,43 @@ using System.Runtime.InteropServices;
 
 namespace PingTool.Helpers;
 
+/// <summary>
+/// Reads the Windows ARP/neighbor cache via the modern, documented GetIpNetTable2 API.
+/// The legacy GetIpNetTable's MIB_IPNETROW layout is undocumented/ambiguous across
+/// x86/x64/ARM64 and could overread its native buffer, raising an uncatchable
+/// AccessViolationException. GetIpNetTable2's MIB_IPNET_ROW2 layout is fully documented,
+/// so the struct below can be marshaled correctly on every architecture this app ships.
+/// </summary>
 internal static class NeighborCacheHelper
 {
     // IPv4 only; local scans in this app are IPv4 /24.
+    private const ushort AfInet = 2;
+    private const int SockAddrInetSize = 28; // sizeof(SOCKADDR_INET)
+    private const int PhysicalAddressSize = 32; // IF_MAX_PHYS_ADDRESS_LENGTH
 
     [DllImport("iphlpapi.dll", SetLastError = true)]
-    private static extern int GetIpNetTable(IntPtr pIpNetTable, ref int pdwSize, bool bOrder);
+    private static extern int GetIpNetTable2(ushort family, out IntPtr table);
 
+    [DllImport("iphlpapi.dll")]
+    private static extern void FreeMibTable(IntPtr table);
+
+    // Mirrors the documented MIB_IPNET_ROW2 layout (netioapi.h) field-for-field.
     [StructLayout(LayoutKind.Sequential)]
-    private struct MIB_IPNETROW
+    private struct MIB_IPNET_ROW2
     {
-        public int dwIndex;
-        public int dwPhysAddrLen;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SockAddrInetSize)]
+        public byte[] Address; // SOCKADDR_INET: bytes[0..1]=family, bytes[4..7]=IPv4 address
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        public byte[] bPhysAddr;
+        public uint InterfaceIndex;
+        public ulong InterfaceLuid;
 
-        public int dwAddr;
-        public int dwType;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PhysicalAddressSize)]
+        public byte[] PhysicalAddress;
+
+        public uint PhysicalAddressLength;
+        public int State;
+        public byte Flags;
+        public uint ReachabilityTime;
     }
 
     public static string? TryGetMacAddress(string ipAddress)
@@ -33,54 +52,50 @@ internal static class NeighborCacheHelper
             return null;
         }
 
-        // First call to get required buffer size.
-        var bufferSize = 0;
-        _ = GetIpNetTable(IntPtr.Zero, ref bufferSize, bOrder: false);
-        if (bufferSize <= 0)
-        {
-            return null;
-        }
+        var targetBytes = ip.GetAddressBytes();
+        var table = IntPtr.Zero;
 
-        var buffer = IntPtr.Zero;
         try
         {
-            buffer = Marshal.AllocHGlobal(bufferSize);
-            var result = GetIpNetTable(buffer, ref bufferSize, bOrder: false);
-            if (result != 0)
+            var queryResult = GetIpNetTable2(AfInet, out table);
+            if (queryResult != 0 || table == IntPtr.Zero)
             {
                 return null;
             }
 
-            var entryCount = Marshal.ReadInt32(buffer);
-            var rowPtr = IntPtr.Add(buffer, sizeof(int));
-            var rowSize = Marshal.SizeOf<MIB_IPNETROW>();
+            var numEntries = Marshal.ReadInt32(table);
+            var rowSize = Marshal.SizeOf<MIB_IPNET_ROW2>();
+            // MIB_IPNET_ROW2 requires 8-byte alignment, so the row array is padded
+            // to start 8 bytes after the leading NumEntries field.
+            var rowsStart = IntPtr.Add(table, 8);
 
-            for (var i = 0; i < entryCount; i++)
+            for (var i = 0; i < numEntries; i++)
             {
-                var currentPtr = IntPtr.Add(rowPtr, i * rowSize);
-                var row = Marshal.PtrToStructure<MIB_IPNETROW>(currentPtr);
+                var row = Marshal.PtrToStructure<MIB_IPNET_ROW2>(IntPtr.Add(rowsStart, i * rowSize));
 
-                // Some rows can have null bPhysAddr depending on marshaling; be defensive.
-                if (row.bPhysAddr is null || row.dwPhysAddrLen <= 0)
+                if (row.Address is null || row.PhysicalAddress is null || row.PhysicalAddressLength <= 0)
                 {
                     continue;
                 }
 
-                // dwAddr is an IPv4 address.
-                var rowIp = new IPAddress(unchecked((uint)row.dwAddr));
-                if (!rowIp.Equals(ip))
+                var family = BitConverter.ToUInt16(row.Address, 0);
+                if (family != AfInet)
                 {
                     continue;
                 }
 
-                var macLen = Math.Clamp(row.dwPhysAddrLen, 0, row.bPhysAddr.Length);
+                if (!row.Address.AsSpan(4, 4).SequenceEqual(targetBytes))
+                {
+                    continue;
+                }
+
+                var macLen = Math.Clamp((int)row.PhysicalAddressLength, 0, row.PhysicalAddress.Length);
                 if (macLen <= 0)
                 {
                     return null;
                 }
 
-                var macBytes = row.bPhysAddr.Take(macLen);
-                return string.Join(":", macBytes.Select(b => b.ToString("X2")));
+                return string.Join(":", row.PhysicalAddress.Take(macLen).Select(b => b.ToString("X2")));
             }
 
             return null;
@@ -91,9 +106,9 @@ internal static class NeighborCacheHelper
         }
         finally
         {
-            if (buffer != IntPtr.Zero)
+            if (table != IntPtr.Zero)
             {
-                Marshal.FreeHGlobal(buffer);
+                FreeMibTable(table);
             }
         }
     }

@@ -20,49 +20,49 @@ public partial class NetworkScannerViewModel : ObservableObject
     private CancellationTokenSource? _scanCts;
 
     [ObservableProperty]
-    private string _startIp = "192.168.1.1";
+    public partial string StartIp { get; set; } = "192.168.1.1";
 
     [ObservableProperty]
-    private string _endIp = "192.168.1.254";
+    public partial string EndIp { get; set; } = "192.168.1.254";
 
     [ObservableProperty]
-    private string _subnet = "192.168.1.0/24";
+    public partial string Subnet { get; set; } = "192.168.1.0/24";
 
     [ObservableProperty]
-    private bool _isScanning;
+    public partial bool IsScanning { get; set; }
 
     [ObservableProperty]
-    private int _progress;
+    public partial int Progress { get; set; }
 
     [ObservableProperty]
-    private string _statusText = "Ready to scan";
+    public partial string StatusText { get; set; } = "Ready to scan";
 
     [ObservableProperty]
-    private ObservableCollection<NetworkScanResult> _scanResults = new();
+    public partial ObservableCollection<NetworkScanResult> ScanResults { get; set; } = new();
 
     [ObservableProperty]
-    private int _timeoutMs = 1000;
+    public partial int TimeoutMs { get; set; } = 1000;
 
     [ObservableProperty]
-    private int _maxConcurrentScans = 50;
+    public partial int MaxConcurrentScans { get; set; } = 50;
 
     [ObservableProperty]
-    private bool _resolveHostnames = true;
+    public partial bool ResolveHostnames { get; set; } = true;
 
     [ObservableProperty]
-    private bool _legalNoticeAcknowledged;
+    public partial bool LegalNoticeAcknowledged { get; set; }
 
     [ObservableProperty]
-    private int _onlineCount;
+    public partial int OnlineCount { get; set; }
 
     [ObservableProperty]
-    private int _offlineCount;
+    public partial int OfflineCount { get; set; }
 
     [ObservableProperty]
-    private int _totalScanned;
+    public partial int TotalScanned { get; set; }
 
     [ObservableProperty]
-    private string _selectedScanType = "Range";
+    public partial string SelectedScanType { get; set; } = "Range";
 
     public NetworkScannerViewModel()
     {

@@ -17,797 +17,480 @@
         <converters:StatusToOpacityConverter x:Key="StatusToOpacityConverter" />
     </Page.Resources>
 
-    <Grid Padding="24,16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+    <Grid>
+        <Grid
+            x:Name="FullModeContent"
+            Padding="24,16"
+            Visibility="{x:Bind GetFullModeVisibility(ViewModel.IsCompactMode), Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
 
 
 
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <!--  ===== HERO PING CONTROL SECTION =====  -->
-        <Border
-            Grid.ColumnSpan="2"
-            Margin="0,0,0,20"
-            Background="{StaticResource AccentGradientBrush}"
-            Style="{StaticResource ModernCardStyle}">
-            <Grid>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <!--  ===== HERO PING CONTROL SECTION =====  -->
+            <Border
+                Grid.ColumnSpan="2"
+                Margin="0,0,0,20"
+                Background="{StaticResource AccentGradientBrush}"
+                Style="{StaticResource ModernCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Left: Title & Description  -->
+                    <StackPanel Margin="0,0,32,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border
+                                Width="52"
+                                Height="52"
+                                Padding="2"
+                                Background="White"
+                                CornerRadius="12">
+                                <Image Source="ms-appx:///Assets/Logo.png" Stretch="UniformToFill" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock
+                                    FontSize="26"
+                                    FontWeight="Bold"
+                                    Foreground="White"
+                                    Text="Ping Legacy" />
+                                <TextBlock
+                                    FontSize="13"
+                                    Foreground="White"
+                                    Opacity="0.8"
+                                    Text="Network Diagnostic Tool" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!--  Right: Ping Controls (THE MAIN FEATURE)  -->
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="8">
+
+                        <!--  Favorites Dropdown  -->
+                        <DropDownButton
+                            Padding="14,10"
+                            Background="#44FFFFFF"
+                            BorderBrush="#22FFFFFF"
+                            CornerRadius="8"
+                            Foreground="White"
+                            ToolTipService.ToolTip="Quick Hosts (Ctrl+F to add)">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Foreground="White"
+                                    Glyph="&#xE728;" />
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    Text="Favorites" />
+                            </StackPanel>
+                            <DropDownButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Click="FavoriteItem_Click" Text="8.8.8.8" />
+                                    <MenuFlyoutItem Click="FavoriteItem_Click" Text="1.1.1.1" />
+                                    <MenuFlyoutItem Click="FavoriteItem_Click" Text="google.com" />
+                                    <MenuFlyoutItem Click="FavoriteItem_Click" Text="cloudflare.com" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Click="AddFavorite_Click" Text="Add Current Host">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE710;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+
+                        <!--  Host Input  -->
+                        <TextBox
+                            x:Name="TxtAddress"
+                            Width="280"
+                            Padding="14,10"
+                            VerticalAlignment="Center"
+                            Background="#EEFFFFFF"
+                            BorderBrush="#22FFFFFF"
+                            CornerRadius="8"
+                            FontSize="14"
+                            KeyDown="TxtAddress_KeyDown"
+                            PlaceholderText="Enter IP or hostname..."
+                            Text="{x:Bind ViewModel.HostNameOrAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <!--  START/STOP Button (Large & Prominent)  -->
+                        <Button
+                            MinWidth="110"
+                            Padding="20,12"
+                            Command="{x:Bind ViewModel.StartPingCommand}"
+                            CornerRadius="8"
+                            Style="{StaticResource AccentButtonStyle}"
+                            ToolTipService.ToolTip="Start: F5 | Stop: Esc">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="{x:Bind GetStartStopSymbol(ViewModel.IsPingStarted), Mode=OneWay}" />
+                                <TextBlock
+                                    FontSize="14"
+                                    FontWeight="Bold"
+                                    Text="{x:Bind GetStartStopText(ViewModel.IsPingStarted), Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+
+                        <!--  Quick Actions  -->
+                        <StackPanel
+                            Margin="4,0,0,0"
+                            Orientation="Horizontal"
+                            Spacing="4">
+                            <Button
+                                Padding="10"
+                                Background="#22FFFFFF"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind ViewModel.ClearPingCommand}"
+                                CornerRadius="6"
+                                ToolTipService.ToolTip="Clear Results (Ctrl+Delete)">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Foreground="White"
+                                    Glyph="&#xE74D;" />
+                            </Button>
+                            <Button
+                                Padding="10"
+                                Background="#22FFFFFF"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind ViewModel.ToggleCompactModeCommand}"
+                                CornerRadius="6"
+                                ToolTipService.ToolTip="Compact floating widget">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Foreground="White"
+                                    Glyph="&#xE740;" />
+                            </Button>
+                            <Button
+                                Padding="10"
+                                Background="#22FFFFFF"
+                                BorderBrush="Transparent"
+                                Click="Settings_Click"
+                                CornerRadius="6"
+                                ToolTipService.ToolTip="Settings">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Foreground="White"
+                                    Glyph="&#xE713;" />
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!--  ===== NETWORK INFO ROW =====  -->
+            <Grid
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!--  Left: Title & Description  -->
-                <StackPanel Margin="0,0,32,0" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Border
-                            Width="52"
-                            Height="52"
-                            Padding="2"
-                            Background="White"
-                            CornerRadius="12">
-                            <Image Source="ms-appx:///Assets/Logo.png" Stretch="UniformToFill" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock
-                                FontSize="26"
-                                FontWeight="Bold"
-                                Foreground="White"
-                                Text="Ping Legacy" />
-                            <TextBlock
-                                FontSize="13"
-                                Foreground="White"
-                                Opacity="0.8"
-                                Text="Network Diagnostic Tool" />
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-
-                <!--  Right: Ping Controls (THE MAIN FEATURE)  -->
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="8">
-
-                    <!--  Favorites Dropdown  -->
-                    <DropDownButton
-                        Padding="14,10"
-                        Background="#44FFFFFF"
-                        BorderBrush="#22FFFFFF"
-                        CornerRadius="8"
-                        Foreground="White"
-                        ToolTipService.ToolTip="Quick Hosts (Ctrl+F to add)">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="14"
-                                Foreground="White"
-                                Glyph="&#xE728;" />
-                            <TextBlock
-                                FontWeight="SemiBold"
-                                Foreground="White"
-                                Text="Favorites" />
-                        </StackPanel>
-                        <DropDownButton.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Click="FavoriteItem_Click" Text="8.8.8.8" />
-                                <MenuFlyoutItem Click="FavoriteItem_Click" Text="1.1.1.1" />
-                                <MenuFlyoutItem Click="FavoriteItem_Click" Text="google.com" />
-                                <MenuFlyoutItem Click="FavoriteItem_Click" Text="cloudflare.com" />
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Click="AddFavorite_Click" Text="Add Current Host">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE710;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                            </MenuFlyout>
-                        </DropDownButton.Flyout>
-                    </DropDownButton>
-
-                    <!--  Host Input  -->
-                    <TextBox
-                        x:Name="TxtAddress"
-                        Width="280"
-                        Padding="14,10"
-                        VerticalAlignment="Center"
-                        Background="#EEFFFFFF"
-                        BorderBrush="#22FFFFFF"
-                        CornerRadius="8"
-                        FontSize="14"
-                        KeyDown="TxtAddress_KeyDown"
-                        PlaceholderText="Enter IP or hostname..."
-                        Text="{x:Bind ViewModel.HostNameOrAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <!--  START/STOP Button (Large & Prominent)  -->
-                    <Button
-                        MinWidth="110"
-                        Padding="20,12"
-                        Command="{x:Bind ViewModel.StartPingCommand}"
-                        CornerRadius="8"
-                        Style="{StaticResource AccentButtonStyle}"
-                        ToolTipService.ToolTip="Start: F5 | Stop: Esc">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="{x:Bind GetStartStopSymbol(ViewModel.IsPingStarted), Mode=OneWay}" />
-                            <TextBlock
-                                FontSize="14"
-                                FontWeight="Bold"
-                                Text="{x:Bind GetStartStopText(ViewModel.IsPingStarted), Mode=OneWay}" />
-                        </StackPanel>
-                    </Button>
-
-                    <!--  Quick Actions  -->
-                    <StackPanel
-                        Margin="4,0,0,0"
-                        Orientation="Horizontal"
-                        Spacing="4">
-                        <Button
-                            Padding="10"
-                            Background="#22FFFFFF"
-                            BorderBrush="Transparent"
-                            Command="{x:Bind ViewModel.ClearPingCommand}"
-                            CornerRadius="6"
-                            ToolTipService.ToolTip="Clear Results (Ctrl+Delete)">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="14"
-                                Foreground="White"
-                                Glyph="&#xE74D;" />
-                        </Button>
-                        <Button
-                            Padding="10"
-                            Background="#22FFFFFF"
-                            BorderBrush="Transparent"
-                            Click="Settings_Click"
-                            CornerRadius="6"
-                            ToolTipService.ToolTip="Settings">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="14"
-                                Foreground="White"
-                                Glyph="&#xE713;" />
-                        </Button>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!--  ===== NETWORK INFO ROW =====  -->
-        <Grid
-            Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!--  Network Info Card  -->
-            <Border Margin="0,0,8,0" Style="{StaticResource ModernCardStyle}">
-                <StackPanel>
-                    <StackPanel
-                        Margin="0,0,0,12"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Border
-                            Width="28"
-                            Height="28"
-                            Background="{StaticResource AccentGradientBrush}"
-                            CornerRadius="6">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="12"
-                                Foreground="White"
-                                Glyph="&#xE968;" />
-                        </Border>
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            Text="Network Info" />
-                    </StackPanel>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock
-                            Margin="0,4"
-                            FontWeight="SemiBold"
-                            Text="IP Address" />
-                        <TextBlock
-                            Grid.Column="1"
-                            Margin="8,4"
-                            Text=":" />
+                <!--  Network Info Card  -->
+                <Border Margin="0,0,8,0" Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
                         <StackPanel
-                            Grid.Column="2"
+                            Margin="0,0,0,12"
                             Orientation="Horizontal"
                             Spacing="8">
-                            <TextBlock Margin="0,4" Text="{x:Bind ViewModel.IpAddress, Mode=OneWay}" />
-                            <Button
-                                Padding="4"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{x:Bind ViewModel.CopyIpAddressCommand}">
-                                <FontIcon
-                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                    FontSize="12"
-                                    Glyph="&#xE8C8;" />
-                            </Button>
-                        </StackPanel>
-
-                        <TextBlock
-                            Grid.Row="1"
-                            Margin="0,4"
-                            FontWeight="SemiBold"
-                            Text="IPv6" />
-                        <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Margin="8,4"
-                            Text=":" />
-                        <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="2"
-                            MaxWidth="180"
-                            Margin="0,4"
-                            FontSize="11"
-                            Text="{x:Bind ViewModel.Ipv6Address, Mode=OneWay}"
-                            TextTrimming="CharacterEllipsis"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.Ipv6Address, Mode=OneWay}" />
-
-                        <TextBlock
-                            Grid.Row="2"
-                            Margin="0,4"
-                            FontWeight="SemiBold"
-                            Text="Profile" />
-                        <TextBlock
-                            Grid.Row="2"
-                            Grid.Column="1"
-                            Margin="8,4"
-                            Text=":" />
-                        <StackPanel
-                            Grid.Row="2"
-                            Grid.Column="2"
-                            Orientation="Horizontal"
-                            Spacing="8">
-                            <TextBlock Margin="0,4" Text="{x:Bind ViewModel.ProfileName, Mode=OneWay}" />
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="14"
-                                Glyph="{x:Bind GetConnectionGlyph(ViewModel.IsWlan), Mode=OneWay}" />
-                        </StackPanel>
-
-                        <TextBlock
-                            Grid.Row="3"
-                            Margin="0,4"
-                            FontWeight="SemiBold"
-                            Text="Public IP" />
-                        <TextBlock
-                            Grid.Row="3"
-                            Grid.Column="1"
-                            Margin="8,4"
-                            Text=":" />
-                        <StackPanel
-                            Grid.Row="3"
-                            Grid.Column="2"
-                            Orientation="Horizontal"
-                            Spacing="8">
-                            <TextBlock Margin="0,4" Text="{x:Bind ViewModel.PublicIp, Mode=OneWay}" />
-                            <Button
-                                Padding="4"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{x:Bind ViewModel.CopyPublicIpCommand}">
-                                <FontIcon
-                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                    FontSize="12"
-                                    Glyph="&#xE8C8;" />
-                            </Button>
-                        </StackPanel>
-
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!--  Network Status Visualization  -->
-            <Border
-                Grid.Column="1"
-                Margin="8,0"
-                Padding="20,12"
-                Style="{StaticResource ModernCardStyle}">
-                <StackPanel HorizontalAlignment="Center" Spacing="12">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Text="Network Status" />
-
-                    <!--  Status Visualization  -->
-                    <StackPanel
-                        HorizontalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="0">
-                        <FontIcon
-                            FontFamily="{StaticResource SymbolThemeFontFamily}"
-                            FontSize="32"
-                            Glyph="&#xEC4E;" />
-                        <Border
-                            Width="32"
-                            Height="2"
-                            VerticalAlignment="Center"
-                            Background="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <StackPanel>
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="22"
-                                Foreground="{x:Bind GetConnectionColor(ViewModel.HasInternetAccess), Mode=OneWay}"
-                                Glyph="{x:Bind GetConnectionGlyph(ViewModel.IsWlan), Mode=OneWay}" />
-                            <TextBlock
-                                MaxWidth="70"
-                                HorizontalAlignment="Center"
-                                FontSize="9"
-                                Text="{x:Bind ViewModel.ProfileName, Mode=OneWay}"
-                                TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                        <Border
-                            Width="32"
-                            Height="2"
-                            VerticalAlignment="Center"
-                            Background="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <FontIcon
-                            FontFamily="{StaticResource SymbolThemeFontFamily}"
-                            FontSize="32"
-                            Foreground="{x:Bind GetConnectionColor(ViewModel.HasInternetAccess), Mode=OneWay}"
-                            Glyph="&#xE774;" />
-                    </StackPanel>
-
-                    <!--  Data Usage Stats  -->
-                    <Border
-                        Padding="12,8"
-                        HorizontalAlignment="Center"
-                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        CornerRadius="8">
-                        <StackPanel Orientation="Horizontal" Spacing="16">
-                            <!--  Download  -->
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Border
-                                    Width="24"
-                                    Height="24"
-                                    Background="{StaticResource SuccessGradientBrush}"
-                                    CornerRadius="6">
-                                    <SymbolIcon Foreground="White" Symbol="Download" />
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="9"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="DOWN" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Text="{x:Bind ViewModel.TotalReceivedBytes, Mode=OneWay}" />
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!--  Separator  -->
                             <Border
-                                Width="1"
-                                Height="30"
-                                Background="{ThemeResource TextFillColorTertiaryBrush}" />
-
-                            <!--  Upload  -->
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Border
-                                    Width="24"
-                                    Height="24"
-                                    Padding="4"
-                                    Background="{StaticResource AccentGradientBrush}"
-                                    CornerRadius="6">
-                                    <SymbolIcon Foreground="White" Symbol="Upload" />
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="9"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="UP" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Text="{x:Bind ViewModel.TotalSentBytes, Mode=OneWay}" />
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!--  Ping Stats Summary  -->
-            <Border
-                Grid.Column="2"
-                Margin="8,0,0,0"
-                Style="{StaticResource ModernCardStyle}">
-                <StackPanel>
-                    <StackPanel
-                        Margin="0,0,0,12"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Border
-                            Width="28"
-                            Height="28"
-                            Background="{StaticResource SuccessGradientBrush}"
-                            CornerRadius="6">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="12"
-                                Foreground="White"
-                                Glyph="&#xE9D9;" />
-                        </Border>
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            Text="Ping Stats" />
-                    </StackPanel>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="MIN" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource SuccessBrush}">
-                                <Run Text="{x:Bind ViewModel.MinPing, Mode=OneWay}" /><Run FontSize="10" Text="ms" />
-                            </TextBlock>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="MAX" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource ErrorBrush}">
-                                <Run Text="{x:Bind ViewModel.MaxPing, Mode=OneWay}" /><Run FontSize="10" Text="ms" />
-                            </TextBlock>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="AVG" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource PrimaryAccentBrush}">
-                                <Run Text="{x:Bind FormatAvg(ViewModel.AvgPing), Mode=OneWay}" /><Run FontSize="10" Text="ms" />
-                            </TextBlock>
-                        </StackPanel>
-
-                        <StackPanel
-                            Grid.Row="1"
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="LOSS" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{x:Bind GetLossColor(ViewModel.PacketLoss), Mode=OneWay}">
-                                <Run Text="{x:Bind FormatLoss(ViewModel.PacketLoss), Mode=OneWay}" /><Run FontSize="10" Text="%" />
-                            </TextBlock>
-                        </StackPanel>
-
-                        <StackPanel
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="OK" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource SuccessBrush}"
-                                Text="{x:Bind ViewModel.SuccessCount, Mode=OneWay}" />
-                        </StackPanel>
-
-                        <StackPanel
-                            Grid.Row="1"
-                            Grid.Column="2"
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="FAIL" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource ErrorBrush}"
-                                Text="{x:Bind ViewModel.FailCount, Mode=OneWay}" />
-                        </StackPanel>
-
-                        <StackPanel
-                            Grid.Row="2"
-                            Grid.ColumnSpan="3"
-                            Margin="0,10,0,0"
-                            HorizontalAlignment="Center">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="10"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="JITTER" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                <Run Text="{x:Bind FormatAvg(ViewModel.Jitter), Mode=OneWay}" />
-                                <Run FontSize="10" Text="ms" />
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-
-
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <!--  ===== NETWORK ADAPTERS =====  -->
-            <Border
-                Grid.Row="0"
-                Margin="2"
-                Style="{StaticResource ModernCardStyle}">
-                <StackPanel>
-                    <StackPanel
-                        Margin="0,0,0,12"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Border
-                            Width="28"
-                            Height="28"
-                            Background="{StaticResource InfoGradientBrush}"
-                            CornerRadius="6">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="12"
-                                Foreground="White"
-                                Glyph="&#xE839;" />
-                        </Border>
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            Text="Other Network Adapters" />
-                    </StackPanel>
-
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{x:Bind ViewModel.LocalLANCollection, Mode=OneWay}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <ItemsWrapGrid MaximumRowsOrColumns="4" Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border
-                                        MinWidth="200"
-                                        Margin="4"
-                                        Padding="12,10"
-                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                        BorderBrush="{Binding OperationalStatus, Converter={StaticResource StatusToBorderConverter}}"
-                                        BorderThickness="1"
-                                        CornerRadius="8"
-                                        Opacity="{Binding OperationalStatus, Converter={StaticResource StatusToOpacityConverter}}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <FontIcon
-                                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                                FontSize="20"
-                                                Foreground="{Binding OperationalStatus, Converter={StaticResource StatusToBrushConverter}}"
-                                                Glyph="&#xE839;" />
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                Margin="12,0"
-                                                VerticalAlignment="Center">
-                                                <TextBlock
-                                                    FontSize="13"
-                                                    FontWeight="SemiBold"
-                                                    Text="{Binding Name}" />
-                                                <TextBlock
-                                                    MaxWidth="130"
-                                                    FontSize="11"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="{Binding Description}"
-                                                    TextTrimming="CharacterEllipsis" />
-                                            </StackPanel>
-                                            <!--  Status Badge  -->
-                                            <Border
-                                                Grid.Column="2"
-                                                Padding="6,2"
-                                                VerticalAlignment="Center"
-                                                Background="{Binding OperationalStatus, Converter={StaticResource StatusToBackgroundConverter}}"
-                                                CornerRadius="4">
-                                                <TextBlock
-                                                    FontSize="9"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="White"
-                                                    Text="{Binding OperationalStatus}" />
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </StackPanel>
-            </Border>
-
-            <!--  ===== LATENCY GRAPH =====  -->
-            <Border
-                Grid.Row="1"
-                Margin="0,0,0,16"
-                Padding="16"
-                Style="{StaticResource ModernCardStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <StackPanel
-                        Margin="0,0,0,8"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Border
-                            Width="24"
-                            Height="24"
-                            Background="{StaticResource AccentGradientBrush}"
-                            CornerRadius="6">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="11"
-                                Foreground="White"
-                                Glyph="&#xE9D9;" />
-                        </Border>
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Text="Latency Graph" />
-                    </StackPanel>
-                    <Canvas
-                        x:Name="ChartCanvas"
-                        Grid.Row="1"
-                        SizeChanged="ChartCanvas_SizeChanged" />
-                </Grid>
-            </Border>
-
-            <!--  ===== DNS LOOKUP =====  -->
-            <Border Grid.Row="2" Style="{StaticResource ModernCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Border
-                            Width="24"
-                            Height="24"
-                            Background="{StaticResource SuccessGradientBrush}"
-                            CornerRadius="6">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="11"
-                                Foreground="White"
-                                Glyph="&#xE968;" />
-                        </Border>
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Text="DNS Lookup" />
-                    </StackPanel>
-
-                    <!--  DNS Input  -->
-                    <Grid Margin="0,12,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox PlaceholderText="Enter hostname..." Text="{x:Bind ViewModel.DnsLookupHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            Padding="12,8"
-                            Command="{x:Bind ViewModel.DnsLookupCommand}"
-                            Style="{StaticResource AccentButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                Width="28"
+                                Height="28"
+                                Background="{StaticResource AccentGradientBrush}"
+                                CornerRadius="6">
                                 <FontIcon
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
                                     FontFamily="{StaticResource SymbolThemeFontFamily}"
                                     FontSize="12"
-                                    Glyph="&#xE721;" />
-                                <TextBlock Text="Resolve" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
+                                    Foreground="White"
+                                    Glyph="&#xE968;" />
+                            </Border>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Text="Network Info" />
+                        </StackPanel>
 
-                    <!--  Loading  -->
-                    <ProgressBar
-                        Margin="0,0,0,8"
-                        IsIndeterminate="True"
-                        Visibility="{x:Bind GetVisibility(ViewModel.IsDnsLookupRunning), Mode=OneWay}" />
-
-                    <!--  DNS Results  -->
-                    <StackPanel Visibility="{x:Bind GetDnsResultVisibility(ViewModel.DnsResult), Mode=OneWay}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Margin="0,4"
+                                FontWeight="SemiBold"
+                                Text="IP Address" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="8,4"
+                                Text=":" />
+                            <StackPanel
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <TextBlock Margin="0,4" Text="{x:Bind ViewModel.IpAddress, Mode=OneWay}" />
+                                <Button
+                                    Padding="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.CopyIpAddressCommand}">
+                                    <FontIcon
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="12"
+                                        Glyph="&#xE8C8;" />
+                                </Button>
+                            </StackPanel>
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,4"
+                                FontWeight="SemiBold"
+                                Text="IPv6" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="8,4"
+                                Text=":" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                MaxWidth="180"
+                                Margin="0,4"
+                                FontSize="11"
+                                Text="{x:Bind ViewModel.Ipv6Address, Mode=OneWay}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind ViewModel.Ipv6Address, Mode=OneWay}" />
+
+                            <TextBlock
+                                Grid.Row="2"
+                                Margin="0,4"
+                                FontWeight="SemiBold"
+                                Text="Profile" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="8,4"
+                                Text=":" />
+                            <StackPanel
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <TextBlock Margin="0,4" Text="{x:Bind ViewModel.ProfileName, Mode=OneWay}" />
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Glyph="{x:Bind GetConnectionGlyph(ViewModel.IsWlan), Mode=OneWay}" />
+                            </StackPanel>
+
+                            <TextBlock
+                                Grid.Row="3"
+                                Margin="0,4"
+                                FontWeight="SemiBold"
+                                Text="Public IP" />
+                            <TextBlock
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Margin="8,4"
+                                Text=":" />
+                            <StackPanel
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <TextBlock Margin="0,4" Text="{x:Bind ViewModel.PublicIp, Mode=OneWay}" />
+                                <Button
+                                    Padding="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.CopyPublicIpCommand}">
+                                    <FontIcon
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="12"
+                                        Glyph="&#xE8C8;" />
+                                </Button>
+                            </StackPanel>
+
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!--  Network Status Visualization  -->
+                <Border
+                    Grid.Column="1"
+                    Margin="8,0"
+                    Padding="20,12"
+                    Style="{StaticResource ModernCardStyle}">
+                    <StackPanel HorizontalAlignment="Center" Spacing="12">
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            Text="Network Status" />
+
+                        <!--  Status Visualization  -->
+                        <StackPanel
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="0">
+                            <FontIcon
+                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                FontSize="32"
+                                Glyph="&#xEC4E;" />
+                            <Border
+                                Width="32"
+                                Height="2"
+                                VerticalAlignment="Center"
+                                Background="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <StackPanel>
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="22"
+                                    Foreground="{x:Bind GetConnectionColor(ViewModel.HasInternetAccess), Mode=OneWay}"
+                                    Glyph="{x:Bind GetConnectionGlyph(ViewModel.IsWlan), Mode=OneWay}" />
+                                <TextBlock
+                                    MaxWidth="70"
+                                    HorizontalAlignment="Center"
+                                    FontSize="9"
+                                    Text="{x:Bind ViewModel.ProfileName, Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <Border
+                                Width="32"
+                                Height="2"
+                                VerticalAlignment="Center"
+                                Background="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <FontIcon
+                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                FontSize="32"
+                                Foreground="{x:Bind GetConnectionColor(ViewModel.HasInternetAccess), Mode=OneWay}"
+                                Glyph="&#xE774;" />
+                        </StackPanel>
+
+                        <!--  Data Usage Stats  -->
+                        <Border
+                            Padding="12,8"
+                            HorizontalAlignment="Center"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <!--  Download  -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Border
+                                        Width="24"
+                                        Height="24"
+                                        Background="{StaticResource SuccessGradientBrush}"
+                                        CornerRadius="6">
+                                        <SymbolIcon Foreground="White" Symbol="Download" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock
+                                            FontSize="9"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="DOWN" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind ViewModel.TotalReceivedBytes, Mode=OneWay}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!--  Separator  -->
+                                <Border
+                                    Width="1"
+                                    Height="30"
+                                    Background="{ThemeResource TextFillColorTertiaryBrush}" />
+
+                                <!--  Upload  -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Border
+                                        Width="24"
+                                        Height="24"
+                                        Padding="4"
+                                        Background="{StaticResource AccentGradientBrush}"
+                                        CornerRadius="6">
+                                        <SymbolIcon Foreground="White" Symbol="Upload" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock
+                                            FontSize="9"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="UP" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind ViewModel.TotalSentBytes, Mode=OneWay}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!--  Ping Stats Summary  -->
+                <Border
+                    Grid.Column="2"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
+                        <StackPanel
+                            Margin="0,0,0,12"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Border
+                                Width="28"
+                                Height="28"
+                                Background="{StaticResource SuccessGradientBrush}"
+                                CornerRadius="6">
+                                <FontIcon
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Glyph="&#xE9D9;" />
+                            </Border>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Text="Ping Stats" />
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
@@ -816,183 +499,718 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <TextBlock
-                                Margin="0,2"
-                                FontSize="11"
-                                FontWeight="SemiBold"
-                                Text="IPv4:" />
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="8,2"
-                                FontFamily="Cascadia Mono, Consolas"
-                                FontSize="11"
-                                Foreground="{StaticResource SuccessBrush}"
-                                Text="{x:Bind GetDnsIpv4(ViewModel.DnsResult), Mode=OneWay}"
-                                TextWrapping="Wrap" />
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="MIN" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource SuccessBrush}">
+                                    <Run Text="{x:Bind ViewModel.MinPing, Mode=OneWay}" /><Run FontSize="10" Text="ms" />
+                                </TextBlock>
+                            </StackPanel>
 
-                            <TextBlock
-                                Grid.Row="1"
-                                Margin="0,2"
-                                FontSize="11"
-                                FontWeight="SemiBold"
-                                Text="IPv6:" />
-                            <TextBlock
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                Margin="8,2"
-                                FontFamily="Cascadia Mono, Consolas"
-                                FontSize="10"
-                                Foreground="{StaticResource PrimaryAccentBrush}"
-                                Text="{x:Bind GetDnsIpv6(ViewModel.DnsResult), Mode=OneWay}"
-                                TextTrimming="CharacterEllipsis"
-                                ToolTipService.ToolTip="{x:Bind GetDnsIpv6(ViewModel.DnsResult), Mode=OneWay}" />
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="MAX" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource ErrorBrush}">
+                                    <Run Text="{x:Bind ViewModel.MaxPing, Mode=OneWay}" /><Run FontSize="10" Text="ms" />
+                                </TextBlock>
+                            </StackPanel>
 
-                            <TextBlock
-                                Grid.Row="2"
-                                Margin="0,2"
-                                FontSize="11"
-                                FontWeight="SemiBold"
-                                Text="Name:" />
-                            <TextBlock
-                                Grid.Row="2"
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="AVG" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource PrimaryAccentBrush}">
+                                    <Run Text="{x:Bind FormatAvg(ViewModel.AvgPing), Mode=OneWay}" /><Run FontSize="10" Text="ms" />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Row="1"
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="LOSS" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{x:Bind GetLossColor(ViewModel.PacketLoss), Mode=OneWay}">
+                                    <Run Text="{x:Bind FormatLoss(ViewModel.PacketLoss), Mode=OneWay}" /><Run FontSize="10" Text="%" />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Row="1"
                                 Grid.Column="1"
-                                Margin="8,2"
-                                FontSize="11"
-                                Text="{x:Bind GetDnsCanonical(ViewModel.DnsResult), Mode=OneWay}"
-                                TextTrimming="CharacterEllipsis" />
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="OK" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource SuccessBrush}"
+                                    Text="{x:Bind ViewModel.SuccessCount, Mode=OneWay}" />
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="FAIL" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource ErrorBrush}"
+                                    Text="{x:Bind ViewModel.FailCount, Mode=OneWay}" />
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Row="2"
+                                Grid.ColumnSpan="3"
+                                Margin="0,10,0,0"
+                                HorizontalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="JITTER" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="{x:Bind FormatAvg(ViewModel.Jitter), Mode=OneWay}" />
+                                    <Run FontSize="10" Text="ms" />
+                                </TextBlock>
+                            </StackPanel>
                         </Grid>
-
-                        <Button
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Right"
-                            Command="{x:Bind ViewModel.CopyDnsResultCommand}"
-                            Style="{StaticResource IconButtonStyle}"
-                            ToolTipService.ToolTip="Copy DNS Results">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="12"
-                                Glyph="&#xE8C8;" />
-                        </Button>
                     </StackPanel>
+                </Border>
+            </Grid>
 
-                    <!--  Error  -->
-                    <TextBlock
-                        FontSize="11"
-                        Foreground="{StaticResource ErrorBrush}"
-                        Text="{x:Bind GetDnsError(ViewModel.DnsResult), Mode=OneWay}"
-                        TextWrapping="Wrap"
-                        Visibility="{x:Bind GetDnsErrorVisibility(ViewModel.DnsResult), Mode=OneWay}" />
-                </StackPanel>
-            </Border>
-        </Grid>
-        <!--  ===== PING RESULTS =====  -->
-        <Border
-            Grid.Row="2"
-            Grid.Column="1"
-            MinHeight="200"
-            Margin="4"
-            Padding="0"
-            Style="{StaticResource ModernCardStyle}">
-            <Grid>
+
+
+            <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
-
+                <!--  ===== NETWORK ADAPTERS =====  -->
                 <Border
-                    Padding="16,10"
-                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                    CornerRadius="8,8,0,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="14"
-                                Foreground="{StaticResource PrimaryAccentBrush}"
-                                Glyph="&#xE9D9;" />
+                    Grid.Row="0"
+                    Margin="2"
+                    Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
+                        <StackPanel
+                            Margin="0,0,0,12"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Border
+                                Width="28"
+                                Height="28"
+                                Background="{StaticResource InfoGradientBrush}"
+                                CornerRadius="6">
+                                <FontIcon
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Glyph="&#xE839;" />
+                            </Border>
                             <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Text="Other Network Adapters" />
+                        </StackPanel>
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.LocalLANCollection, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsWrapGrid MaximumRowsOrColumns="4" Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border
+                                            MinWidth="200"
+                                            Margin="4"
+                                            Padding="12,10"
+                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                            BorderBrush="{Binding OperationalStatus, Converter={StaticResource StatusToBorderConverter}}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Opacity="{Binding OperationalStatus, Converter={StaticResource StatusToOpacityConverter}}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon
+                                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                                    FontSize="20"
+                                                    Foreground="{Binding OperationalStatus, Converter={StaticResource StatusToBrushConverter}}"
+                                                    Glyph="&#xE839;" />
+                                                <StackPanel
+                                                    Grid.Column="1"
+                                                    Margin="12,0"
+                                                    VerticalAlignment="Center">
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        FontWeight="SemiBold"
+                                                        Text="{Binding Name}" />
+                                                    <TextBlock
+                                                        MaxWidth="130"
+                                                        FontSize="11"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="{Binding Description}"
+                                                        TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <!--  Status Badge  -->
+                                                <Border
+                                                    Grid.Column="2"
+                                                    Padding="6,2"
+                                                    VerticalAlignment="Center"
+                                                    Background="{Binding OperationalStatus, Converter={StaticResource StatusToBackgroundConverter}}"
+                                                    CornerRadius="4">
+                                                    <TextBlock
+                                                        FontSize="9"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="White"
+                                                        Text="{Binding OperationalStatus}" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+
+                <!--  ===== LATENCY GRAPH =====  -->
+                <Border
+                    Grid.Row="1"
+                    Margin="0,0,0,16"
+                    Padding="16"
+                    Style="{StaticResource ModernCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel
+                            Margin="0,0,0,8"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Border
+                                Width="24"
+                                Height="24"
+                                Background="{StaticResource AccentGradientBrush}"
+                                CornerRadius="6">
+                                <FontIcon
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="11"
+                                    Foreground="White"
+                                    Glyph="&#xE9D9;" />
+                            </Border>
+                            <TextBlock
+                                VerticalAlignment="Center"
                                 FontSize="13"
                                 FontWeight="SemiBold"
-                                Text="Ping Results" />
+                                Text="Latency Graph" />
                         </StackPanel>
-                        <TextBlock
-                            Grid.Column="1"
-                            FontSize="11"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                            <Run Text="{x:Bind ViewModel.PingCollection.Count, Mode=OneWay}" />
-                            <Run Text=" responses" />
-                        </TextBlock>
+                        <Canvas
+                            x:Name="ChartCanvas"
+                            Grid.Row="1"
+                            SizeChanged="ChartCanvas_SizeChanged" />
                     </Grid>
                 </Border>
 
-                <ListView
-                    Grid.Row="1"
-                    Padding="8"
-                    ItemsSource="{x:Bind ViewModel.PingCollection, Mode=OneWay}"
-                    SelectionMode="None">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,1" Padding="10,4">
+                <!--  ===== DNS LOOKUP =====  -->
+                <Border Grid.Row="2" Style="{StaticResource ModernCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border
+                                Width="24"
+                                Height="24"
+                                Background="{StaticResource SuccessGradientBrush}"
+                                CornerRadius="6">
+                                <FontIcon
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="11"
+                                    Foreground="White"
+                                    Glyph="&#xE968;" />
+                            </Border>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                Text="DNS Lookup" />
+                        </StackPanel>
+
+                        <!--  DNS Input  -->
+                        <Grid Margin="0,12,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox PlaceholderText="Enter hostname..." Text="{x:Bind ViewModel.DnsLookupHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button
+                                Grid.Column="1"
+                                Margin="8,0,0,0"
+                                Padding="12,8"
+                                Command="{x:Bind ViewModel.DnsLookupCommand}"
+                                Style="{StaticResource AccentButtonStyle}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="12"
+                                        Glyph="&#xE721;" />
+                                    <TextBlock Text="Resolve" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Grid.Column="2"
+                                Margin="8,0,0,0"
+                                Padding="12,8"
+                                Command="{x:Bind ViewModel.WhoisLookupCommand}"
+                                ToolTipService.ToolTip="Whois Lookup">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="12"
+                                        Glyph="&#xE71C;" />
+                                    <TextBlock Text="Whois" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!--  Loading  -->
+                        <ProgressBar
+                            Margin="0,0,0,8"
+                            IsIndeterminate="True"
+                            Visibility="{x:Bind GetVisibility(ViewModel.IsDnsLookupRunning), Mode=OneWay}" />
+
+                        <!--  DNS Results  -->
+                        <StackPanel Visibility="{x:Bind GetDnsResultVisibility(ViewModel.DnsResult), Mode=OneWay}">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Ellipse
-                                    Width="6"
-                                    Height="6"
-                                    Margin="0,0,10,0"
-                                    VerticalAlignment="Center"
-                                    Fill="{Binding Time, Converter={StaticResource TextColorConverter}}" />
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock
+                                    Margin="0,2"
+                                    FontSize="11"
+                                    FontWeight="SemiBold"
+                                    Text="IPv4:" />
                                 <TextBlock
                                     Grid.Column="1"
+                                    Margin="8,2"
                                     FontFamily="Cascadia Mono, Consolas"
                                     FontSize="11"
-                                    Text="{Binding Response}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel VerticalAlignment="Top" ItemsUpdatingScrollMode="KeepLastItemInView" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="MinHeight" Value="0" />
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                                    Foreground="{StaticResource SuccessBrush}"
+                                    Text="{x:Bind GetDnsIpv4(ViewModel.DnsResult), Mode=OneWay}"
+                                    TextWrapping="Wrap" />
 
-                <StackPanel
-                    Grid.Row="1"
-                    HorizontalAlignment="Center"
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Margin="0,2"
+                                    FontSize="11"
+                                    FontWeight="SemiBold"
+                                    Text="IPv6:" />
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="8,2"
+                                    FontFamily="Cascadia Mono, Consolas"
+                                    FontSize="10"
+                                    Foreground="{StaticResource PrimaryAccentBrush}"
+                                    Text="{x:Bind GetDnsIpv6(ViewModel.DnsResult), Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTipService.ToolTip="{x:Bind GetDnsIpv6(ViewModel.DnsResult), Mode=OneWay}" />
+
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Margin="0,2"
+                                    FontSize="11"
+                                    FontWeight="SemiBold"
+                                    Text="Name:" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Margin="8,2"
+                                    FontSize="11"
+                                    Text="{x:Bind GetDnsCanonical(ViewModel.DnsResult), Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </Grid>
+
+                            <Button
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Right"
+                                Command="{x:Bind ViewModel.CopyDnsResultCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTipService.ToolTip="Copy DNS Results">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="12"
+                                    Glyph="&#xE8C8;" />
+                            </Button>
+                        </StackPanel>
+
+                        <!--  Error  -->
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="{StaticResource ErrorBrush}"
+                            Text="{x:Bind GetDnsError(ViewModel.DnsResult), Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind GetDnsErrorVisibility(ViewModel.DnsResult), Mode=OneWay}" />
+
+                        <!--  Whois Loading  -->
+                        <ProgressBar
+                            Margin="0,8,0,8"
+                            IsIndeterminate="True"
+                            Visibility="{x:Bind GetVisibility(ViewModel.IsWhoisLookupRunning), Mode=OneWay}" />
+
+                        <!--  Whois Results  -->
+                        <StackPanel Visibility="{x:Bind GetVisibility(ViewModel.WhoisResult), Mode=OneWay}">
+                            <TextBlock
+                                Margin="0,8,0,4"
+                                FontSize="11"
+                                FontWeight="SemiBold"
+                                Text="Whois Record:" />
+                            <ScrollViewer
+                                MaxHeight="220"
+                                VerticalScrollBarVisibility="Auto"
+                                VerticalScrollMode="Auto">
+                                <TextBlock
+                                    FontFamily="Cascadia Mono, Consolas"
+                                    FontSize="10"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind ViewModel.WhoisResult, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </ScrollViewer>
+                            <Button
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Right"
+                                Command="{x:Bind ViewModel.CopyWhoisResultCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTipService.ToolTip="Copy Whois Result">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="12"
+                                    Glyph="&#xE8C8;" />
+                            </Button>
+                        </StackPanel>
+
+                        <!--  Whois Error  -->
+                        <TextBlock
+                            Margin="0,8,0,0"
+                            FontSize="11"
+                            Foreground="{StaticResource ErrorBrush}"
+                            Text="{x:Bind ViewModel.WhoisError, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind GetVisibility(ViewModel.WhoisError), Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <!--  ===== PING RESULTS =====  -->
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                MinHeight="200"
+                Margin="4"
+                Padding="0"
+                Style="{StaticResource ModernCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border
+                        Padding="16,10"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                        CornerRadius="8,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Foreground="{StaticResource PrimaryAccentBrush}"
+                                    Glyph="&#xE9D9;" />
+                                <TextBlock
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Text="Ping Results" />
+                            </StackPanel>
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="0,6,12,0"
+                                FontSize="11"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                <Run Text="{x:Bind ViewModel.PingCollection.Count, Mode=OneWay}" />
+                                <Run Text=" responses" />
+                            </TextBlock>
+                            <Button
+                                Grid.Column="2"
+                                Margin="0,0,8,0"
+                                Command="{x:Bind ViewModel.ExportCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTipService.ToolTip="Export Results (.txt / .csv / .json)">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Glyph="&#xE898;" />
+                            </Button>
+                            <Button
+                                Grid.Column="3"
+                                Click="ShareResults_Click"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTipService.ToolTip="Share Results">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="14"
+                                    Glyph="&#xE72D;" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <ListView
+                        Grid.Row="1"
+                        Padding="8"
+                        ItemsSource="{x:Bind ViewModel.PingCollection, Mode=OneWay}"
+                        SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,1" Padding="10,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse
+                                        Width="6"
+                                        Height="6"
+                                        Margin="0,0,10,0"
+                                        VerticalAlignment="Center"
+                                        Fill="{Binding Time, Converter={StaticResource TextColorConverter}}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        FontFamily="Cascadia Mono, Consolas"
+                                        FontSize="11"
+                                        Text="{Binding Response}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsStackPanel VerticalAlignment="Top" ItemsUpdatingScrollMode="KeepLastItemInView" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="MinHeight" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+                    <StackPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind GetEmptyVisibility(ViewModel.PingCollection.Count), Mode=OneWay}">
+                        <FontIcon
+                            FontFamily="{StaticResource SymbolThemeFontFamily}"
+                            FontSize="36"
+                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                            Glyph="&#xE774;" />
+                        <TextBlock
+                            Margin="0,8,0,4"
+                            HorizontalAlignment="Center"
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Text="No ping results yet" />
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            FontSize="10"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Press F5 or click Start to begin" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!--  ===== COMPACT MODE FLOATING WIDGET =====  -->
+        <Grid
+            x:Name="CompactModeContent"
+            Padding="16"
+            Background="{StaticResource AccentGradientBrush}"
+            Visibility="{x:Bind GetCompactModeVisibility(ViewModel.IsCompactMode), Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--  Host + exit button  -->
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
                     VerticalAlignment="Center"
-                    Visibility="{x:Bind GetEmptyVisibility(ViewModel.PingCollection.Count), Mode=OneWay}">
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Foreground="White"
+                    Text="{x:Bind ViewModel.HostNameOrAddress, Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis" />
+                <Button
+                    Grid.Column="1"
+                    Padding="6"
+                    Background="#33FFFFFF"
+                    BorderBrush="Transparent"
+                    Click="ExitCompactMode_Click"
+                    CornerRadius="6"
+                    ToolTipService.ToolTip="Exit compact mode">
                     <FontIcon
                         FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        FontSize="36"
-                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                        Glyph="&#xE774;" />
-                    <TextBlock
-                        Margin="0,8,0,4"
-                        HorizontalAlignment="Center"
                         FontSize="12"
-                        FontWeight="SemiBold"
-                        Text="No ping results yet" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="10"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Text="Press F5 or click Start to begin" />
-                </StackPanel>
+                        Foreground="White"
+                        Glyph="&#xE944;" />
+                </Button>
             </Grid>
-        </Border>
+
+            <!--  Latest latency  -->
+            <TextBlock
+                Grid.Row="1"
+                Margin="0,4,0,8"
+                FontSize="32"
+                FontWeight="Bold"
+                Foreground="White"
+                Text="{x:Bind GetLatestPingSummary(ViewModel.PingCollection.Count), Mode=OneWay}" />
+
+            <!--  Min / Avg / Max  -->
+            <StackPanel
+                Grid.Row="2"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="20">
+                <StackPanel>
+                    <TextBlock
+                        FontSize="10"
+                        Foreground="#CCFFFFFF"
+                        Text="MIN" />
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Text="{x:Bind ViewModel.MinPing, Mode=OneWay}" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock
+                        FontSize="10"
+                        Foreground="#CCFFFFFF"
+                        Text="AVG" />
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Text="{x:Bind FormatAvg(ViewModel.AvgPing), Mode=OneWay}" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock
+                        FontSize="10"
+                        Foreground="#CCFFFFFF"
+                        Text="MAX" />
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Text="{x:Bind ViewModel.MaxPing, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!--  Start/Stop  -->
+            <Button
+                Grid.Row="3"
+                Margin="0,8,0,0"
+                Padding="0,8"
+                HorizontalAlignment="Stretch"
+                Background="#33FFFFFF"
+                BorderBrush="Transparent"
+                Command="{x:Bind ViewModel.StartPingCommand}"
+                CornerRadius="8">
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="6">
+                    <SymbolIcon Foreground="White" Symbol="{x:Bind GetStartStopSymbol(ViewModel.IsPingStarted), Mode=OneWay}" />
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Text="{x:Bind GetStartStopText(ViewModel.IsPingStarted), Mode=OneWay}" />
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </Page>
