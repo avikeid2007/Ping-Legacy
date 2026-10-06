@@ -100,6 +100,7 @@ jobs:
           /p:Configuration=Release `
           /p:Platform=x64 `
           /p:WindowsPackageType=None `
+          /p:EnableMsixTooling=false `
           /p:AppxPackageSigningEnabled=false `
           /p:GenerateAppxPackageOnBuild=false `
           /t:Restore,Build
@@ -112,6 +113,7 @@ jobs:
           --self-contained true `
           /p:Platform=x64 `
           /p:WindowsPackageType=None `
+          /p:EnableMsixTooling=false `
           /p:PublishSingleFile=false `
           /p:PublishReadyToRun=true `
           /p:PublishTrimmed=false `
