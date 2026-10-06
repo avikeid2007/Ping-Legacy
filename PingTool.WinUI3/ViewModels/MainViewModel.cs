@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.AppCenter.Crashes;
 using Microsoft.UI.Xaml.Input;
 using PingTool.Helpers;
 using PingTool.Models;
@@ -166,8 +167,16 @@ public partial class MainViewModel : ObservableObject
         _ = FetchPublicIpAsync(); // Fire and forget - don't wait for this
         NetworkInformation.NetworkStatusChanged += async _ =>
         {
-            await SetNetworkInfoAsync();
-            _ = FetchPublicIpAsync();
+            // Raised on a background thread - an unhandled exception here crashes the process.
+            try
+            {
+                await SetNetworkInfoAsync();
+                _ = FetchPublicIpAsync();
+            }
+            catch (Exception ex)
+            {
+                Crashes.TrackError(ex);
+            }
         };
 
         // Start data usage auto-refresh timer (every 2 seconds)
@@ -244,25 +253,43 @@ public partial class MainViewModel : ObservableObject
 
                 _ = Task.Run(async () =>
                 {
-                    await foreach (var result in _pingService.StartPingAsync(cleanHost, cancellationToken: _pingCts.Token))
+                    try
                     {
-                        var pingMessage = new PingMassage
+                        await foreach (var result in _pingService.StartPingAsync(cleanHost, cancellationToken: _pingCts.Token))
                         {
-                            PingId = _pingId,
-                            Date = _pingDate,
-                            IpAddress = result.IpAddress,
-                            Time = result.Time,
-                            Size = result.Size,
-                            Ttl = result.Ttl,
-                            Response = result.Response
-                        };
+                            var pingMessage = new PingMassage
+                            {
+                                PingId = _pingId,
+                                Date = _pingDate,
+                                IpAddress = result.IpAddress,
+                                Time = result.Time,
+                                Size = result.Size,
+                                Ttl = result.Ttl,
+                                Response = result.Response
+                            };
 
-                        _dispatcherQueue.TryEnqueue(() =>
-                        {
-                            PingCollection.Add(pingMessage);
-                            UpdateStatistics(result);
-                            SQLiteHelper.Save(pingMessage);
-                        });
+                            _dispatcherQueue.TryEnqueue(() =>
+                            {
+                                try
+                                {
+                                    PingCollection.Add(pingMessage);
+                                    UpdateStatistics(result);
+                                    SQLiteHelper.Save(pingMessage);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Crashes.TrackError(ex);
+                                }
+                            });
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected when the user stops the ping.
+                    }
+                    catch (Exception ex)
+                    {
+                        Crashes.TrackError(ex);
                     }
                 });
 

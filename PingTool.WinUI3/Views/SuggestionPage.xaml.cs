@@ -55,7 +55,16 @@ public sealed partial class SuggestionPage : Page
                       $"&body={Uri.EscapeDataString(body.ToString())}" +
                       (labels.Count > 0 ? $"&labels={string.Join(",", labels)}" : "");
 
-        await Launcher.LaunchUriAsync(new Uri(issueUrl));
+        try
+        {
+            // Long descriptions can exceed the max URL length and throw UriFormatException.
+            await Launcher.LaunchUriAsync(new Uri(issueUrl));
+        }
+        catch (Exception ex)
+        {
+            await ShowDialog("Error", $"Could not open GitHub: {ex.Message}");
+            return;
+        }
 
         // Clear form
         TitleText.Text = string.Empty;

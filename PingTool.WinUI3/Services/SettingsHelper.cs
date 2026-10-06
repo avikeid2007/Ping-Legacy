@@ -13,6 +13,9 @@ public static class SettingsHelper
 
     private static readonly string SettingsFile = Path.Combine(SettingsFolder, "settings.json");
 
+    // Accessed from the UI thread, scheduled-ping timer threads, and background scan tasks at once -
+    // a plain Dictionary is not thread-safe and concurrent writes were crashing the app in production.
+    private static readonly object _lock = new();
     private static Dictionary<string, string>? _settings;
 
     private static Dictionary<string, string> Settings
@@ -63,23 +66,36 @@ public static class SettingsHelper
 
     public static void Save<T>(string key, T value)
     {
-        Settings[key] = JsonSerializer.Serialize(value);
-        Persist();
+        lock (_lock)
+        {
+            try
+            {
+                Settings[key] = JsonSerializer.Serialize(value);
+                Persist();
+            }
+            catch
+            {
+                // Ignore serialization errors - don't let a bad value crash the app
+            }
+        }
     }
 
     public static T? Read<T>(string key)
     {
-        if (Settings.TryGetValue(key, out var json))
+        lock (_lock)
         {
-            try
+            if (Settings.TryGetValue(key, out var json))
             {
-                return JsonSerializer.Deserialize<T>(json);
+                try
+                {
+                    return JsonSerializer.Deserialize<T>(json);
+                }
+                catch
+                {
+                    return default;
+                }
             }
-            catch
-            {
-                return default;
-            }
+            return default;
         }
-        return default;
     }
 }

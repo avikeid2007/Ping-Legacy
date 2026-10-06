@@ -92,7 +92,18 @@ public class ScheduledPingService : IDisposable
         StopTimer(ping.Id);
 
         var timer = new System.Timers.Timer(ping.IntervalMinutes * 60 * 1000);
-        timer.Elapsed += async (s, e) => await ExecutePingAsync(ping);
+        timer.Elapsed += async (s, e) =>
+        {
+            try
+            {
+                await ExecutePingAsync(ping);
+            }
+            catch (Exception ex)
+            {
+                // Raised on the timer's thread pool thread - unobserved exceptions here crash the app.
+                Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
+            }
+        };
         timer.AutoReset = true;
         timer.Start();
 

@@ -20,6 +20,12 @@ public partial class App : Application
 
         AppCenter.Start("6d7768e2-cf4e-41fb-a2b8-30c20c7ef36b",
             typeof(Analytics), typeof(Crashes));
+
+        // Catch anything that slips through the framework's dispatch so the app can
+        // log and survive instead of hard-crashing (this was previously unhandled).
+        UnhandledException += OnUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -33,6 +39,27 @@ public partial class App : Application
         ThemeSelectorService.Initialize();  // Initialize AFTER window is created
 
         _window.Activate();
+    }
+
+    private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        Crashes.TrackError(e.Exception);
+        // Keep the app alive for recoverable errors instead of terminating the process.
+        e.Handled = true;
+    }
+
+    private void OnDomainUnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception ex)
+        {
+            Crashes.TrackError(ex);
+        }
+    }
+
+    private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Crashes.TrackError(e.Exception);
+        e.SetObserved();
     }
 
     public static Window? MainWindow { get; set; }
