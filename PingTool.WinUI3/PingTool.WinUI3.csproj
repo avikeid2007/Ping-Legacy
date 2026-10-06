@@ -20,7 +20,9 @@
     <!-- Required so Program.cs's custom Main can register the Windows Widgets COM server
          (CoRegisterClassObject) before the normal WinUI app launches. -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <!-- Signing is disabled (Store re-signs on submission); a temp cert isn't needed and its
+         post-build cleanup task fails with a missing CertificateThumbprint when left enabled. -->
+    <GenerateTemporaryStoreCertificate>False</GenerateTemporaryStoreCertificate>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
