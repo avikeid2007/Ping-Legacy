@@ -5,6 +5,48 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <!-- Loops while that metric's phase is actively being measured; stopped (which resets scale) once the phase ends. -->
+        <Storyboard x:Name="DownloadPulseStoryboard" AutoReverse="True" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="DownloadIconScale" Storyboard.TargetProperty="ScaleX" To="1.3" Duration="0:0:0.65">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="DownloadIconScale" Storyboard.TargetProperty="ScaleY" To="1.3" Duration="0:0:0.65">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+        <Storyboard x:Name="UploadPulseStoryboard" AutoReverse="True" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="UploadIconScale" Storyboard.TargetProperty="ScaleX" To="1.3" Duration="0:0:0.65">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="UploadIconScale" Storyboard.TargetProperty="ScaleY" To="1.3" Duration="0:0:0.65">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+        <!-- One-shot "pop" reveal played once the final numbers are in. -->
+        <Storyboard x:Name="ResultPopStoryboard">
+            <DoubleAnimation Storyboard.TargetName="SpeedDisplayScale" Storyboard.TargetProperty="ScaleX" From="0.85" To="1" Duration="0:0:0.35">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.4" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="SpeedDisplayScale" Storyboard.TargetProperty="ScaleY" From="0.85" To="1" Duration="0:0:0.35">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.4" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="SpeedDisplayGrid" Storyboard.TargetProperty="Opacity" From="0.4" To="1" Duration="0:0:0.35" />
+        </Storyboard>
+    </Page.Resources>
+
     <Grid Padding="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -52,7 +94,14 @@
                 </Grid.RowDefinitions>
 
                 <!-- Speed Display -->
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid
+                    x:Name="SpeedDisplayGrid"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <ScaleTransform x:Name="SpeedDisplayScale" />
+                    </Grid.RenderTransform>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -62,11 +111,17 @@
                     <!-- Download -->
                     <StackPanel HorizontalAlignment="Center" Spacing="8">
                         <FontIcon
+                            x:Name="DownloadIcon"
                             HorizontalAlignment="Center"
                             FontFamily="{StaticResource SymbolThemeFontFamily}"
                             FontSize="32"
                             Foreground="{StaticResource PrimaryAccentBrush}"
-                            Glyph="&#xE896;" />
+                            Glyph="&#xE896;"
+                            RenderTransformOrigin="0.5,0.5">
+                            <FontIcon.RenderTransform>
+                                <ScaleTransform x:Name="DownloadIconScale" />
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
                         <TextBlock
                             HorizontalAlignment="Center"
                             FontSize="11"
@@ -96,11 +151,17 @@
                     <!-- Upload -->
                     <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="8">
                         <FontIcon
+                            x:Name="UploadIcon"
                             HorizontalAlignment="Center"
                             FontFamily="{StaticResource SymbolThemeFontFamily}"
                             FontSize="32"
                             Foreground="{StaticResource SuccessGradientBrush}"
-                            Glyph="&#xE898;" />
+                            Glyph="&#xE898;"
+                            RenderTransformOrigin="0.5,0.5">
+                            <FontIcon.RenderTransform>
+                                <ScaleTransform x:Name="UploadIconScale" />
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
                         <TextBlock
                             HorizontalAlignment="Center"
                             FontSize="11"
