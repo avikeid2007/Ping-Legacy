@@ -5,6 +5,7 @@ using PingTool.Helpers;
 using PingTool.Models;
 using PingTool.Services;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace PingTool.Views;
@@ -58,7 +59,7 @@ public sealed partial class PortScannerPage : Page
             return;
         }
 
-        var host = HostInput.Text?.Trim();
+        var host = NormalizeHost(HostInput.Text?.Trim());
         if (string.IsNullOrEmpty(host)) return;
 
         var confirmed = await ShowAuthorizationDialogAsync(host);
@@ -66,6 +67,65 @@ public sealed partial class PortScannerPage : Page
 
         _currentHost = host;
         await ExecuteScanAsync(host);
+    }
+
+    /// <summary>
+    /// Accepts IPv6 addresses typed with URL-style brackets (e.g. "[::1]" or "[2001:db8::1]:8080",
+    /// as commonly copy-pasted from a browser address bar) and unwraps them to the bare literal
+    /// ("::1", "2001:db8::1") that TcpClient/Dns expect. Plain hostnames and unbracketed IPv4/IPv6
+    /// literals are returned unchanged.
+    /// </summary>
+    private static string NormalizeHost(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+        var host = input.Trim();
+        if (host.StartsWith('['))
+        {
+            var closingBracket = host.IndexOf(']');
+            if (closingBracket > 0)
+            {
+                host = host.Substring(1, closingBracket - 1);
+            }
+        }
+
+        return host;
+    }
+
+    /// <summary>
+    /// Resolves the host before scanning and shows the actual address/family (IPv4 or IPv6) that
+    /// will be targeted, so the user can confirm an IPv6-only or dual-stack host resolved correctly.
+    /// </summary>
+    private static async Task<UIElement> BuildResolvedAddressPanelAsync(string host)
+    {
+        var panel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin = new Thickness(0, 4, 0, 0),
+            Spacing = 8
+        };
+        panel.Children.Add(new TextBlock { Text = "Resolves To:", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold });
+
+        try
+        {
+            var addresses = await System.Net.Dns.GetHostAddressesAsync(host);
+            var address = addresses.FirstOrDefault();
+            if (address != null)
+            {
+                var family = address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? "IPv6" : "IPv4";
+                panel.Children.Add(new TextBlock { Text = $"{address} ({family})" });
+            }
+            else
+            {
+                panel.Children.Add(new TextBlock { Text = "Could not resolve", Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["ErrorBrush"] });
+            }
+        }
+        catch
+        {
+            panel.Children.Add(new TextBlock { Text = "Could not resolve", Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["ErrorBrush"] });
+        }
+
+        return panel;
     }
 
     private async Task<bool> ShowAuthorizationDialogAsync(string host)
@@ -109,6 +169,7 @@ public sealed partial class PortScannerPage : Page
                         new TextBlock { Text = "Port Scan" }
                     }
                 },
+                await BuildResolvedAddressPanelAsync(host),
                 checkBox
             }
         };

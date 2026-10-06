@@ -5,16 +5,16 @@ namespace PingTool.Models;
 public partial class DataUse : ObservableObject
 {
     [ObservableProperty]
-    private DateTime _date;
+    public partial DateTime Date { get; set; }
 
     [ObservableProperty]
-    private ulong _upload;
+    public partial ulong Upload { get; set; }
 
     [ObservableProperty]
-    private ulong _download;
+    public partial ulong Download { get; set; }
 
     [ObservableProperty]
-    private TimeSpan _connectionDuration;
+    public partial TimeSpan ConnectionDuration { get; set; }
 }
 
 public class NetworkDataUse

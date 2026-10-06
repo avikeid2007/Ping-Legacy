@@ -3,10 +3,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:helpers="using:PingTool.Helpers"
+    xmlns:models="using:PingTool.Models"
     xmlns:views="using:PingTool.Views"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="K" Invoked="OpenCommandPalette_Invoked" Modifiers="Control" />
+        </Grid.KeyboardAccelerators>
         <NavigationView
             x:Name="navigationView"
             IsBackButtonVisible="Collapsed"
@@ -43,6 +47,11 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE839;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Subnet Calculator" helpers:NavHelper.NavigateTo="views:SubnetCalculatorPage">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8EF;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="Speed Test" helpers:NavHelper.NavigateTo="views:SpeedTestPage">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B0;"/>
@@ -72,6 +81,7 @@
 
             <NavigationView.PaneFooter>
                 <StackPanel Margin="0,0,0,8">
+                    <NavigationViewItem Content="Search (Ctrl+K)" Icon="Find" Tapped="SearchNavItem_Tapped" />
                     <NavigationViewItem Content="Rate Us" Icon="Like" Tapped="RateUs_Tapped"/>
                 </StackPanel>
             </NavigationView.PaneFooter>
@@ -96,5 +106,68 @@
                 <Frame x:Name="shellFrame" />
             </Grid>
         </NavigationView>
+
+        <!-- Global Command Palette (Ctrl+K) -->
+        <Grid
+            x:Name="CommandPaletteOverlay"
+            Background="#80000000"
+            Tapped="CommandPaletteOverlay_Tapped"
+            Visibility="Collapsed">
+            <Border
+                Width="560"
+                MaxHeight="420"
+                Margin="0,120,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Tapped="CommandPalettePanel_Tapped">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBox
+                        x:Name="CommandPaletteSearchBox"
+                        Margin="12"
+                        BorderThickness="0"
+                        FontSize="16"
+                        KeyDown="CommandPaletteSearchBox_KeyDown"
+                        PlaceholderText="Search pages... (Esc to close)"
+                        TextChanged="CommandPaletteSearchBox_TextChanged" />
+
+                    <ListView
+                        x:Name="CommandPaletteResultsList"
+                        Grid.Row="1"
+                        MaxHeight="320"
+                        Margin="4,0,4,8"
+                        IsItemClickEnabled="True"
+                        ItemClick="CommandPaletteResultsList_ItemClick"
+                        SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:CommandPaletteItem">
+                                <StackPanel Padding="8,6" Orientation="Horizontal" Spacing="12">
+                                    <FontIcon
+                                        Width="20"
+                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        FontSize="14"
+                                        Glyph="{x:Bind Glyph}" />
+                                    <StackPanel>
+                                        <TextBlock FontSize="13" Text="{x:Bind Title}" />
+                                        <TextBlock
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind Subtitle}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

@@ -9,7 +9,6 @@ namespace PingTool.Views;
 
 public sealed partial class ScheduledPingsPage : Page
 {
-    private static ScheduledPingService? _sharedService;
     private readonly ScheduledPingService _service;
 
     public ObservableCollection<ScheduledPing> Schedules { get; } = new();
@@ -18,12 +17,13 @@ public sealed partial class ScheduledPingsPage : Page
     {
         InitializeComponent();
         
-        // Use shared service instance for persistence across navigation
-        _sharedService ??= new ScheduledPingService();
-        _service = _sharedService;
+        // Use the app-wide shared service instance for persistence across navigation (and so the
+        // scheduler keeps running even when this page isn't the active one).
+        _service = ScheduledPingService.Instance;
 
         _service.PingCompleted += OnPingCompleted;
         _service.PingFailed += OnPingFailed;
+        _service.PingRecovered += OnPingRecovered;
 
         LoadSchedules();
     }
@@ -60,28 +60,40 @@ public sealed partial class ScheduledPingsPage : Page
     {
         DispatcherQueue.TryEnqueue(() =>
         {
-            // Show notification for failed ping
-            try
-            {
-                var toastXml = new Windows.Data.Xml.Dom.XmlDocument();
-                toastXml.LoadXml($@"
-                    <toast>
-                        <visual>
-                            <binding template='ToastGeneric'>
-                                <text>Scheduled Ping Failed</text>
-                                <text>Unable to reach {ping.Host} - {ping.ConsecutiveFailures} consecutive failures</text>
-                            </binding>
-                        </visual>
-                    </toast>");
-
-                var toast = new Windows.UI.Notifications.ToastNotification(toastXml);
-                Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier("Ping Legacy").Show(toast);
-            }
-            catch
-            {
-                // Ignore notification errors
-            }
+            ShowToast("Scheduled Ping Failed", $"Unable to reach {ping.Host} - {ping.ConsecutiveFailures} consecutive failures");
         });
+    }
+
+    private void OnPingRecovered(ScheduledPing ping)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            ShowToast("Scheduled Ping Recovered", $"{ping.Host} is reachable again ({ping.LastLatency}ms)");
+        });
+    }
+
+    private static void ShowToast(string title, string message)
+    {
+        try
+        {
+            var toastXml = new Windows.Data.Xml.Dom.XmlDocument();
+            toastXml.LoadXml($@"
+                <toast>
+                    <visual>
+                        <binding template='ToastGeneric'>
+                            <text>{title}</text>
+                            <text>{message}</text>
+                        </binding>
+                    </visual>
+                </toast>");
+
+            var toast = new Windows.UI.Notifications.ToastNotification(toastXml);
+            Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier("Ping Legacy").Show(toast);
+        }
+        catch (Exception ex)
+        {
+            Sentry.SentrySdk.CaptureException(ex);
+        }
     }
 
     private void AddSchedule_Click(object sender, RoutedEventArgs e)

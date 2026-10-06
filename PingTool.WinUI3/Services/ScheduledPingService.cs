@@ -7,14 +7,24 @@ namespace PingTool.Services;
 
 public class ScheduledPingService : IDisposable
 {
+    /// <summary>Shared instance so scheduled pings keep running across page navigation (and are
+    /// inspectable from MainWindow to decide whether to minimize-to-tray instead of exiting).</summary>
+    public static ScheduledPingService Instance { get; } = new();
+
     private readonly List<ScheduledPing> _scheduledPings = new();
     private readonly Dictionary<string, System.Timers.Timer> _timers = new();
     private readonly object _lock = new();
 
     public event Action<ScheduledPing, bool, long>? PingCompleted;
     public event Action<ScheduledPing>? PingFailed;
+    public event Action<ScheduledPing>? PingRecovered;
 
-    public IReadOnlyList<ScheduledPing> ScheduledPings => _scheduledPings.AsReadOnly();
+    // Returns a snapshot, not a live view - callers (UI thread, AppWindow.Closing) must not
+    // enumerate the same List<T> a timer thread may concurrently be mutating/serializing.
+    public IReadOnlyList<ScheduledPing> ScheduledPings
+    {
+        get { lock (_lock) { return _scheduledPings.ToList(); } }
+    }
 
     public ScheduledPingService()
     {
@@ -137,6 +147,13 @@ public class ScheduledPingService : IDisposable
                 ping.LastLatency = reply.RoundtripTime;
                 ping.LastResult = "Success";
                 ping.ConsecutiveFailures = 0;
+
+                if (ping.WasDownNotified)
+                {
+                    ping.WasDownNotified = false;
+                    PingRecovered?.Invoke(ping);
+                }
+
                 PingCompleted?.Invoke(ping, true, reply.RoundtripTime);
             }
             else
@@ -147,6 +164,7 @@ public class ScheduledPingService : IDisposable
 
                 if (ping.NotifyOnFailure && ping.ConsecutiveFailures >= 2)
                 {
+                    ping.WasDownNotified = true;
                     PingFailed?.Invoke(ping);
                 }
                 PingCompleted?.Invoke(ping, false, -1);
@@ -161,6 +179,7 @@ public class ScheduledPingService : IDisposable
 
             if (ping.NotifyOnFailure && ping.ConsecutiveFailures >= 2)
             {
+                ping.WasDownNotified = true;
                 PingFailed?.Invoke(ping);
             }
             PingCompleted?.Invoke(ping, false, -1);
@@ -193,7 +212,15 @@ public class ScheduledPingService : IDisposable
 
     private void SaveScheduledPings()
     {
-        SettingsHelper.Save("ScheduledPings", _scheduledPings);
+        // Snapshot under the lock - ExecutePingAsync calls this from a timer thread without
+        // already holding _lock, so serializing the live list directly could race a concurrent
+        // Add/Remove/Toggle from the UI thread (lock is reentrant, so this is safe from those too).
+        List<ScheduledPing> snapshot;
+        lock (_lock)
+        {
+            snapshot = _scheduledPings.ToList();
+        }
+        SettingsHelper.Save("ScheduledPings", snapshot);
     }
 
     public void Dispose()

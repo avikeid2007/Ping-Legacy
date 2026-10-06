@@ -327,8 +327,8 @@ public class NetworkScannerService
         var startBytes = IPAddress.Parse(startIp).GetAddressBytes();
         var endBytes = IPAddress.Parse(endIp).GetAddressBytes();
 
-        uint start = BitConverter.ToUInt32(startBytes.Reverse().ToArray(), 0);
-        uint end = BitConverter.ToUInt32(endBytes.Reverse().ToArray(), 0);
+        uint start = BitConverter.ToUInt32(Enumerable.Reverse(startBytes).ToArray(), 0);
+        uint end = BitConverter.ToUInt32(Enumerable.Reverse(endBytes).ToArray(), 0);
 
         if (end < start)
         {
@@ -343,7 +343,7 @@ public class NetworkScannerService
 
         for (uint i = start; i <= end; i++)
         {
-            var bytes = BitConverter.GetBytes(i).Reverse().ToArray();
+            var bytes = Enumerable.Reverse(BitConverter.GetBytes(i)).ToArray();
             ipList.Add(new IPAddress(bytes).ToString());
         }
 

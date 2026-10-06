@@ -37,97 +37,97 @@ public partial class MainViewModel : ObservableObject
     #region Network Properties
 
     [ObservableProperty]
-    private string _ipAddress = string.Empty;
+    public partial string IpAddress { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _ipv6Address = string.Empty;
+    public partial string Ipv6Address { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _publicIp = string.Empty;
+    public partial string PublicIp { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _profileName = string.Empty;
+    public partial string ProfileName { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isWlan;
+    public partial bool IsWlan { get; set; }
 
     [ObservableProperty]
-    private long _totalReceivedBytes;
+    public partial long TotalReceivedBytes { get; set; }
 
     [ObservableProperty]
-    private long _totalSentBytes;
+    public partial long TotalSentBytes { get; set; }
 
     [ObservableProperty]
-    private bool _isSupportIPV6;
+    public partial bool IsSupportIPV6 { get; set; }
 
     [ObservableProperty]
-    private int _wifiBars;
+    public partial int WifiBars { get; set; }
 
     [ObservableProperty]
-    private string _hostNameOrAddress = "8.8.8.8";
+    public partial string HostNameOrAddress { get; set; } = "8.8.8.8";
 
     [ObservableProperty]
-    private string _ipType = string.Empty;
+    public partial string IpType { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<NetworkInterface> _localLANCollection = new();
+    public partial ObservableCollection<NetworkInterface> LocalLANCollection { get; set; } = new();
 
     [ObservableProperty]
-    private NetworkInterface? _selectedLocalLAN;
+    public partial NetworkInterface? SelectedLocalLAN { get; set; }
 
     [ObservableProperty]
-    private bool _hasInternetAccess;
+    public partial bool HasInternetAccess { get; set; }
 
     [ObservableProperty]
-    private bool _isPingStarted;
+    public partial bool IsPingStarted { get; set; }
 
     [ObservableProperty]
-    private bool _isCompactMode;
+    public partial bool IsCompactMode { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<PingMassage> _pingCollection = new();
+    public partial ObservableCollection<PingMassage> PingCollection { get; set; } = new();
 
     #endregion
 
     #region Statistics Properties
 
     [ObservableProperty]
-    private long _minPing;
+    public partial long MinPing { get; set; }
 
     [ObservableProperty]
-    private long _maxPing;
+    public partial long MaxPing { get; set; }
 
     [ObservableProperty]
-    private double _avgPing;
+    public partial double AvgPing { get; set; }
 
     [ObservableProperty]
-    private double _packetLoss;
+    public partial double PacketLoss { get; set; }
 
     [ObservableProperty]
-    private double _jitter;
+    public partial double Jitter { get; set; }
 
     [ObservableProperty]
-    private int _successCount;
+    public partial int SuccessCount { get; set; }
 
     [ObservableProperty]
-    private int _failCount;
+    public partial int FailCount { get; set; }
 
     #endregion
 
     #region Favorites Properties
 
     [ObservableProperty]
-    private ObservableCollection<string> _favoriteHosts = new();
+    public partial ObservableCollection<string> FavoriteHosts { get; set; } = new();
 
     [ObservableProperty]
-    private string? _selectedFavorite;
+    public partial string? SelectedFavorite { get; set; }
 
     #endregion
 
     #region Chart Data
 
     [ObservableProperty]
-    private ObservableCollection<double> _chartValues = new();
+    public partial ObservableCollection<double> ChartValues { get; set; } = new();
 
     private const int MaxChartPoints = 50;
 
@@ -136,15 +136,25 @@ public partial class MainViewModel : ObservableObject
     #region DNS Lookup Properties
 
     private readonly DnsLookupService _dnsLookupService = new();
+    private readonly WhoisLookupService _whoisLookupService = new();
 
     [ObservableProperty]
-    private string _dnsLookupHost = string.Empty;
+    public partial string DnsLookupHost { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private DnsLookupResult? _dnsResult;
+    public partial DnsLookupResult? DnsResult { get; set; }
 
     [ObservableProperty]
-    private bool _isDnsLookupRunning;
+    public partial bool IsDnsLookupRunning { get; set; }
+
+    [ObservableProperty]
+    public partial string? WhoisResult { get; set; }
+
+    [ObservableProperty]
+    public partial string? WhoisError { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsWhoisLookupRunning { get; set; }
 
     #endregion
 
@@ -306,6 +316,11 @@ public partial class MainViewModel : ObservableObject
             SavePingToHistory();
 
             IsPingStarted = false;
+
+            if (App.MainWindow is MainWindow idleWindow)
+            {
+                idleWindow.UpdateTrayStatus("Ping Legacy - idle", Services.TrayStatus.Idle);
+            }
         }
     }
 
@@ -400,6 +415,42 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task WhoisLookupAsync()
+    {
+        if (string.IsNullOrWhiteSpace(DnsLookupHost))
+        {
+            DnsLookupHost = HostNameOrAddress;
+        }
+
+        if (string.IsNullOrWhiteSpace(DnsLookupHost)) return;
+
+        IsWhoisLookupRunning = true;
+        WhoisError = null;
+        try
+        {
+            WhoisResult = await _whoisLookupService.LookupAsync(DnsLookupHost.Trim());
+        }
+        catch (Exception ex)
+        {
+            WhoisResult = null;
+            WhoisError = ex.Message;
+        }
+        finally
+        {
+            IsWhoisLookupRunning = false;
+        }
+    }
+
+    [RelayCommand]
+    private void CopyWhoisResult()
+    {
+        if (!string.IsNullOrWhiteSpace(WhoisResult))
+        {
+            FileHelper.CopyText(WhoisResult);
+        }
+    }
+
     #endregion
 
     #region Export Commands
@@ -407,16 +458,64 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportAsync()
     {
-        if (PingCollection.Count > 0)
+        if (PingCollection.Count == 0) return;
+
+        await FileHelper.SaveExportAsync("ping-results", new Dictionary<string, string>
         {
-            var stats = $"=== Ping Statistics ===\r\n" +
-                       $"Host: {HostNameOrAddress}\r\n" +
-                       $"Min: {MinPing}ms | Max: {MaxPing}ms | Avg: {AvgPing:F1}ms\r\n" +
-                       $"Packet Loss: {PacketLoss:F1}% ({FailCount}/{_totalPings})\r\n" +
-                       $"========================\r\n\r\n";
-            var text = stats + string.Join("\r\n", PingCollection.Select(x => x.Response));
-            await FileHelper.SaveFileAsync(text, "ping.txt");
+            [".txt"] = BuildPingTextExport(),
+            [".csv"] = BuildPingCsvExport(),
+            [".json"] = BuildPingJsonExport()
+        });
+    }
+
+    /// <summary>Builds the same plain-text summary used for .txt export, for use by the Share contract.</summary>
+    public string BuildShareText() => BuildPingTextExport();
+
+    private string BuildPingTextExport()
+    {
+        var stats = $"=== Ping Statistics ===\r\n" +
+                   $"Host: {HostNameOrAddress}\r\n" +
+                   $"Min: {MinPing}ms | Max: {MaxPing}ms | Avg: {AvgPing:F1}ms\r\n" +
+                   $"Packet Loss: {PacketLoss:F1}% ({FailCount}/{_totalPings})\r\n" +
+                   $"========================\r\n\r\n";
+        return stats + string.Join("\r\n", PingCollection.Select(x => x.Response));
+    }
+
+    private string BuildPingCsvExport()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Timestamp,IpAddress,TimeMs,Size,Ttl,Response");
+        foreach (var p in PingCollection)
+        {
+            sb.AppendLine(string.Join(",",
+                p.Date.ToString("yyyy-MM-dd HH:mm:ss"),
+                FileHelper.ToCsvField(p.IpAddress),
+                p.Time,
+                p.Size,
+                p.Ttl,
+                FileHelper.ToCsvField(p.Response)));
         }
+        return sb.ToString();
+    }
+
+    private string BuildPingJsonExport()
+    {
+        var export = new
+        {
+            Host = HostNameOrAddress,
+            ExportedAt = DateTimeOffset.Now,
+            Statistics = new { MinPing, MaxPing, AvgPing, PacketLoss, SuccessCount, FailCount },
+            Results = PingCollection.Select(p => new
+            {
+                p.Date,
+                p.IpAddress,
+                TimeMs = p.Time,
+                p.Size,
+                p.Ttl,
+                p.Response
+            })
+        };
+        return System.Text.Json.JsonSerializer.Serialize(export, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
     }
 
     [RelayCommand]
@@ -603,6 +702,17 @@ public partial class MainViewModel : ObservableObject
         }
 
         PacketLoss = _totalPings > 0 ? (double)_failedPings / _totalPings * 100 : 0;
+
+        if (App.MainWindow is MainWindow mainWindow)
+        {
+            var status = result.IsSuccess ? Services.TrayStatus.Online : Services.TrayStatus.Offline;
+            var tooltip = result.IsSuccess
+                ? $"Ping Legacy - {HostNameOrAddress}: {result.Time} ms"
+                : $"Ping Legacy - {HostNameOrAddress}: unreachable";
+            mainWindow.UpdateTrayStatus(tooltip, status);
+        }
+
+        WidgetStatusService.ReportPingResult(HostNameOrAddress ?? string.Empty, result.IsSuccess, result.Time);
     }
 
     private void ShowConnectionDropNotification()

@@ -313,7 +313,24 @@
                                         Width="180"
                                         TextTrimming="CharacterEllipsis"
                                         Text="{x:Bind VendorDisplay}" />
-                                    <TextBlock Text="{x:Bind Hostname}" />
+                                    <TextBlock
+                                        Width="140"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{x:Bind Hostname}" />
+                                    <Button
+                                        Margin="8,0,0,0"
+                                        Padding="8,4"
+                                        Click="WakeOnLan_Click"
+                                        Tag="{x:Bind MacAddress}"
+                                        ToolTipService.ToolTip="Send Wake-on-LAN magic packet">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon
+                                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                                FontSize="12"
+                                                Glyph="&#xE7E8;" />
+                                            <TextBlock Text="Wake" />
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>

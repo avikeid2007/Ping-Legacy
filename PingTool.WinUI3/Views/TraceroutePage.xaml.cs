@@ -1,10 +1,12 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using PingTool.Helpers;
 using PingTool.Models;
 using PingTool.Services;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Text.Json;
 
 namespace PingTool.Views;
 
@@ -173,5 +175,81 @@ public sealed partial class TraceroutePage : Page
         {
             TraceButton_Click(sender, e);
         }
+    }
+
+    private async void Export_Click(object sender, RoutedEventArgs e)
+    {
+        if (Hops.Count == 0) return;
+
+        var host = HostInput.Text?.Trim() ?? string.Empty;
+
+        await FileHelper.SaveExportAsync("traceroute-results", new Dictionary<string, string>
+        {
+            [".txt"] = BuildTextExport(host),
+            [".csv"] = BuildCsvExport(),
+            [".json"] = BuildJsonExport(host)
+        });
+    }
+
+    private void Share_Click(object sender, RoutedEventArgs e)
+    {
+        if (Hops.Count == 0 || App.MainWindow is not Window window) return;
+
+        var host = HostInput.Text?.Trim() ?? string.Empty;
+        ShareService.ShareText(window, $"Traceroute to {host}", BuildTextExport(host));
+    }
+
+    private string BuildTextExport(string host)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("=== Traceroute Results ===");
+        sb.AppendLine($"Target: {host}");
+        sb.AppendLine($"Hops: {Hops.Count}");
+        sb.AppendLine("===========================");
+        sb.AppendLine();
+        foreach (var hop in Hops)
+        {
+            sb.AppendLine($"Hop {hop.HopNumber}: {hop.IpAddress} ({hop.Hostname}) - {hop.LatencyDisplay}");
+        }
+        return sb.ToString();
+    }
+
+    private string BuildCsvExport()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Hop,IpAddress,Hostname,Latency1Ms,Latency2Ms,Latency3Ms,Status");
+        foreach (var hop in Hops)
+        {
+            sb.AppendLine(string.Join(",",
+                hop.HopNumber,
+                FileHelper.ToCsvField(hop.IpAddress),
+                FileHelper.ToCsvField(hop.Hostname),
+                hop.Latency1,
+                hop.Latency2,
+                hop.Latency3,
+                hop.Status));
+        }
+        return sb.ToString();
+    }
+
+    private string BuildJsonExport(string host)
+    {
+        var export = new
+        {
+            Target = host,
+            ExportedAt = DateTimeOffset.Now,
+            HopCount = Hops.Count,
+            Hops = Hops.Select(hop => new
+            {
+                hop.HopNumber,
+                hop.IpAddress,
+                hop.Hostname,
+                hop.Latency1,
+                hop.Latency2,
+                hop.Latency3,
+                hop.Status
+            })
+        };
+        return JsonSerializer.Serialize(export, new JsonSerializerOptions { WriteIndented = true });
     }
 }

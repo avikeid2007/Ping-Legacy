@@ -2,6 +2,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using PingTool.Services;
 using PingTool.ViewModels;
+using System;
+using System.Threading.Tasks;
 
 namespace PingTool.Views;
 
@@ -62,5 +64,44 @@ public sealed partial class NetworkScannerPage : Page
         {
             ViewModel.SelectedScanType = scanType;
         }
+    }
+
+    private async void WakeOnLan_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        var mac = button.Tag as string;
+        if (string.IsNullOrWhiteSpace(mac))
+        {
+            await ShowWakeOnLanResultAsync("No MAC Address",
+                "This device's MAC address wasn't discovered during the scan, so a Wake-on-LAN packet can't be targeted at it.");
+            return;
+        }
+
+        try
+        {
+            await WakeOnLanService.SendMagicPacketAsync(mac);
+            await ShowWakeOnLanResultAsync("Magic Packet Sent",
+                $"A Wake-on-LAN packet was broadcast to {mac}. The device will wake up if it supports WoL and it's enabled in its BIOS/network adapter settings.");
+        }
+        catch (Exception ex)
+        {
+            await ShowWakeOnLanResultAsync("Wake-on-LAN Failed", ex.Message);
+        }
+    }
+
+    private async Task ShowWakeOnLanResultAsync(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = this.XamlRoot
+        };
+        await dialog.ShowAsync();
     }
 }

@@ -11,6 +11,10 @@ public class ScheduledPing
     public long? LastLatency { get; set; }
     public bool NotifyOnFailure { get; set; } = true;
     public int ConsecutiveFailures { get; set; }
+
+    /// <summary>True once a "down" toast has been shown for the current outage, so a single
+    /// "recovered" toast can be shown the next time this host responds successfully again.</summary>
+    public bool WasDownNotified { get; set; }
     
     public string IntervalDisplay => IntervalMinutes switch
     {

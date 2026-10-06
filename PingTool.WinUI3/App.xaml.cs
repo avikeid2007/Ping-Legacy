@@ -56,6 +56,12 @@ public partial class App : Application
         _window = new MainWindow();
         MainWindow = _window;  // Set the static property so theme service can access it
 
+        if (!string.IsNullOrEmpty(args.Arguments))
+        {
+            NavigationService.PendingLaunchPage = JumpListHelper.ResolveArguments(args.Arguments);
+        }
+        _ = JumpListHelper.UpdateAsync();
+
         ThemeSelectorService.Initialize();  // Initialize AFTER window is created
 
         _window.Activate();

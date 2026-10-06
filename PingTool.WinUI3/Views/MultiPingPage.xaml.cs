@@ -25,6 +25,17 @@ public sealed partial class MultiPingPage : Page
         }
     }
 
+    private void NewProfileNameInput_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            ViewModel.SaveProfileCommand.Execute(null);
+        }
+    }
+
+    private Visibility GetEmptyProfilesVisibility(int count) =>
+        count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
     private void RemoveTarget_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is PingTarget target)

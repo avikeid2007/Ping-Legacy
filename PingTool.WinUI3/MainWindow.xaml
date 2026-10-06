@@ -3,8 +3,39 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PingTool"
+    xmlns:tb="using:H.NotifyIcon"
     xmlns:views="using:PingTool.Views"
     Title="Ping Legacy">
-    
-    <views:ShellPage x:Name="ShellFrame" />
+
+    <Grid>
+        <views:ShellPage x:Name="ShellFrame" />
+
+        <tb:TaskbarIcon
+            x:Name="TrayIcon"
+            ContextMenuMode="PopupMenu"
+            ToolTipText="Ping Legacy - idle">
+            <tb:TaskbarIcon.IconSource>
+                <tb:GeneratedIconSource
+                    Background="Gray"
+                    BackgroundType="Ellipse"
+                    Foreground="White"
+                    Text="?" />
+            </tb:TaskbarIcon.IconSource>
+            <tb:TaskbarIcon.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Click="ShowWindow_Click" Text="Show Ping Legacy">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE740;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Click="ExitApp_Click" Text="Exit">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </tb:TaskbarIcon.ContextFlyout>
+        </tb:TaskbarIcon>
+    </Grid>
 </Window>
