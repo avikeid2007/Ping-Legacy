@@ -101,7 +101,7 @@ public class ScheduledPingService : IDisposable
             catch (Exception ex)
             {
                 // Raised on the timer's thread pool thread - unobserved exceptions here crash the app.
-                Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
+                Sentry.SentrySdk.CaptureException(ex);
             }
         };
         timer.AutoReset = true;

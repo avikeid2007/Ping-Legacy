@@ -50,9 +50,24 @@
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.8" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.5" />
-    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.5" />
+    <PackageReference Include="Sentry" Version="6.12.0" />
   </ItemGroup>
+
+  <!-- Keeps the Sentry DSN out of source control: falls back to the SENTRY_DSN env var
+       (set via a GitHub Actions secret in CI); empty for local dev builds, which disables Sentry.
+       Baked in via AssemblyMetadata (not a generated Compile item) to avoid WinUI's XAML
+       two-pass compiler, which snapshots Compile items before custom targets can add to them. -->
+  <PropertyGroup>
+    <SentryDsn Condition="'$(SentryDsn)' == ''">$(SENTRY_DSN)</SentryDsn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>SentryDsn</_Parameter1>
+      <_Parameter2>$(SentryDsn)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 
 
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

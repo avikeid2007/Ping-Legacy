@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.UI.Xaml.Input;
+using Sentry;
 using PingTool.Helpers;
 using PingTool.Models;
 using PingTool.Services;
@@ -175,7 +175,7 @@ public partial class MainViewModel : ObservableObject
             }
             catch (Exception ex)
             {
-                Crashes.TrackError(ex);
+                SentrySdk.CaptureException(ex);
             }
         };
 
@@ -278,7 +278,7 @@ public partial class MainViewModel : ObservableObject
                                 }
                                 catch (Exception ex)
                                 {
-                                    Crashes.TrackError(ex);
+                                    SentrySdk.CaptureException(ex);
                                 }
                             });
                         }
@@ -289,7 +289,7 @@ public partial class MainViewModel : ObservableObject
                     }
                     catch (Exception ex)
                     {
-                        Crashes.TrackError(ex);
+                        SentrySdk.CaptureException(ex);
                     }
                 });
 

@@ -1,4 +1,4 @@
-using Microsoft.AppCenter.Crashes;
+using Sentry;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -19,7 +19,7 @@ public static class FileHelper
         {
             // The clipboard is frequently locked by another process (RDP, clipboard
             // managers, etc.) - this must never crash the app.
-            Crashes.TrackError(ex);
+            SentrySdk.CaptureException(ex);
         }
     }
 
@@ -45,7 +45,7 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            Crashes.TrackError(ex);
+            SentrySdk.CaptureException(ex);
         }
     }
 }

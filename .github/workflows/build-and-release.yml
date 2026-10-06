@@ -13,6 +13,7 @@ env:
   DOTNET_VERSION: '8.0.x'
   PROJECT_PATH: 'PingTool.WinUI3/PingTool.WinUI3.csproj'
   SOLUTION_PATH: 'PingTool.WinUI3.sln'
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
   build-msix-bundle:
