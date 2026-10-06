@@ -24,7 +24,8 @@ public partial class App : Application
         {
             // Sentry throws if Dsn is left null; an explicit "" is how you disable it.
             options.Dsn = GetBuildTimeDsn() ?? string.Empty;
-            options.SendDefaultPii = true;
+            // Keep off: no need for IP/computer name on crash reports for this app.
+            options.SendDefaultPii = false;
             options.TracesSampleRate = 1.0;
             // Client app, not a server handling concurrent requests.
             options.IsGlobalModeEnabled = true;
