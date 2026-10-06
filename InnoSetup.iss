@@ -2,7 +2,7 @@
 ; Requires Inno Setup 6.0 or later: https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Ping Legacy"
-#define MyAppVersion "2.0.4.0"
+#define MyAppVersion "2.0.6.0"
 #define MyAppPublisher "Avnish Kumar"
 #define MyAppURL "https://github.com/avikeid2007/Ping-Tool"
 #define MyAppExeName "PingTool.WinUI3.exe"
