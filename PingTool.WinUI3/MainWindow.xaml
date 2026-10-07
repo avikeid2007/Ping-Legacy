@@ -14,13 +14,13 @@
             x:Name="TrayIcon"
             ContextMenuMode="PopupMenu"
             ToolTipText="Ping Legacy - idle">
-            <tb:TaskbarIcon.IconSource>
-                <tb:GeneratedIconSource
-                    Background="Gray"
-                    BackgroundType="Ellipse"
-                    Foreground="White"
-                    Text="?" />
-            </tb:TaskbarIcon.IconSource>
+            <!--
+                IconSource is set in code-behind (see MainWindow.xaml.cs), not here: assigning an
+                ImageSource straight from XAML (e.g. a BitmapImage loaded from ms-appx) decodes
+                asynchronously, and H.NotifyIcon's native HICON conversion can run before the pixels
+                are ready, throwing "Argument 'picture' must be a picture that can be used as a
+                Icon." Loading/resizing synchronously via System.Drawing avoids that race.
+            -->
             <tb:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Click="ShowWindow_Click" Text="Show Ping Legacy">

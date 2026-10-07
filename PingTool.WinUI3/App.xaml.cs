@@ -13,6 +13,13 @@ namespace PingTool;
 /// </summary>
 public partial class App : Application
 {
+    /// <summary>
+    /// Signaled when the app is genuinely shutting down (MainWindow.Closed), so long-running
+    /// background work (e.g. scheduled/streaming pings) can stop touching UI elements that are
+    /// about to be torn down instead of throwing COMException/ObjectDisposedException.
+    /// </summary>
+    public static readonly CancellationTokenSource ShutdownCts = new();
+
     private Window? _window;
 
     public App()

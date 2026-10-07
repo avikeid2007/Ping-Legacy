@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
@@ -11,7 +11,7 @@
   <Identity
     Name="34488AvnishKumar.PingLegacy"
     Publisher="CN=1494B4FB-4349-4083-8AFA-16D2A64B8D99"
-    Version="2.0.7.0" />
+    Version="2.0.9.0" />
 
   <mp:PhoneIdentity PhoneProductId="47951041-7215-498c-bc16-5264b20c26cf" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

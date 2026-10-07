@@ -257,15 +257,18 @@ public partial class MainViewModel : ObservableObject
                 // Save the host address
                 SettingsHelper.Save("HostNameOrAddress", HostNameOrAddress);
 
-                // Start ping with cancellation support
-                _pingCts = new CancellationTokenSource();
+                // Start ping with cancellation support. Also linked to the app-shutdown token so
+                // this loop (and its queued UI updates) stop as soon as the window is closing,
+                // instead of racing a torn-down visual tree.
+                _pingCts = CancellationTokenSource.CreateLinkedTokenSource(App.ShutdownCts.Token);
+                var pingToken = _pingCts.Token;
                 var cleanHost = HostNameOrAddress.Replace("http://", "").Replace("https://", "").TrimEnd('/');
 
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        await foreach (var result in _pingService.StartPingAsync(cleanHost, cancellationToken: _pingCts.Token))
+                        await foreach (var result in _pingService.StartPingAsync(cleanHost, cancellationToken: pingToken))
                         {
                             var pingMessage = new PingMassage
                             {
@@ -280,6 +283,10 @@ public partial class MainViewModel : ObservableObject
 
                             _dispatcherQueue.TryEnqueue(() =>
                             {
+                                // The app may have started shutting down between enqueuing and
+                                // running this callback; skip UI work against a closing window.
+                                if (pingToken.IsCancellationRequested) return;
+
                                 try
                                 {
                                     PingCollection.Add(pingMessage);
@@ -295,7 +302,7 @@ public partial class MainViewModel : ObservableObject
                     }
                     catch (OperationCanceledException)
                     {
-                        // Expected when the user stops the ping.
+                        // Expected when the user stops the ping or the app is shutting down.
                     }
                     catch (Exception ex)
                     {
